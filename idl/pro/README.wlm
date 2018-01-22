@@ -1,0 +1,24 @@
+wlm_apply.pro       : Applies WLM based phase corrections
+wlm_box_gain.pro    : Computes the gain factors to place each WLM box on a 
+                      common temperature scale
+wlm_box_smooth.pro  : Smooths the WLM curves
+wlm_db_read.pro     : Reads the WLM data from the database
+wlm_derive.pro      : Derives the conversion between WLM and astronomy phase
+wlm_derivs.pro      : Computes integration average derivatives of a WLM box
+wlm_dt.pro          : Estimates integration time of each WLM record
+wlm_int_ave.pro     : Computes the integration average WLM value
+wlm_off_data.pro    : Identifies WLM taken while telescopes were slewing
+wlm_plot_data.pro   : All purpose plotting routine for WLM data
+wlm_rec_ave.pro     : Computes average WLM value within a record
+wlm_slopes.pro      : Fits staight line to phase vs. WLM plot
+wlm_solve_gains.pro : Solves for the conversion between phase and WLM values
+wlm_start_stop.pro  : Computes start/stop time for each integration
+wlm_sub_mean.pro    : Subtracts mean from a WLM curve
+
+General procedure to use WLM data:
+
+result = dbi_track_s(4188,'t4188',1,200)
+result = wlm_db_read(/doplot)
+result = wlm_box_gain(60.0,use=[2,3,4,5,6],/interactive)
+result = wlm_derive()
+result = wlm_apply()

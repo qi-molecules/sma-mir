@@ -1,0 +1,19 @@
+
+
+This directory includes all idl .pro routines written for mir.
+
+These routines are named with prefixes describing a few broad categories :
+
+cal_ : Calibration routines used in common w/ bas,gai,pas,wlm
+dat_ : Data manipulation for idl mir structures  
+dbi_ : Database interaction
+fil_ : Host file manipulation
+gai_ : Gain calibration
+pas_ : Passband calibration
+plo_ : Plotting 
+pri_ : Printing 
+pro_ : Programming 
+rep_ : Reports 
+uti_ : Small utility programs
+wlm_ : Water line monitor
+ 

@@ -1,0 +1,16 @@
+#RDXDIR is the directory with all the MIR programs
+#replace RDXDIR with your own mir directory
+setenv RDXDIR /sma/mir  #[normally set by sybase.env]
+setenv IDL_STARTUP $RDXDIR/idl/idl_startup
+
+#These lines are normal idl setup lines except that $RDXDIR/idl has
+#been added to the front of the path
+setenv LM_LICENSE_FILE /opt/license_files/license.dat
+setenv IDL_DIR  /opt/rsi/idl
+setenv ASTRO_DATA $IDL_DIR/user_contrib/astron
+
+#Add your own idl directory in IDL_PATH if necessary
+setenv IDL_PATH  \+$RDXDIR/idl/pro:$IDL_DIR/lib:$IDL_DIR/user_contrib/astron/pro
+setenv IDL_DEVICE X
+alias idl $IDL_DIR/bin/idl                                 # generic IDL version
+setenv CAMPUS_LOGIN sma 

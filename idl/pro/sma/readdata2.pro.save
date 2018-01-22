@@ -1,0 +1,92 @@
+pro readdata2,directory=directory,in_rx=in_rx, in_sideband=in_sideband, $
+                        in_source = in_source, in_band = in_band, $
+                        in_baseline=in_baseline, in_integration=in_integration, $
+                        min_scan_length=min_scan_length, verbose=verbose, preview=preview
+;yes
+;=Task:READDATA2 --- To read data from specified directory
+;#Type: i/o
+;
+;+Use:
+;      READDATA2, similar as READATA, will read raw SMA data from, by default,
+;      the current directory. If you want to read a data set called mydata from
+;      a different directory, /home/smauser/ for example,  you can use
+;      >readdata,dir='/home/smauser/mydata'
+;      Specifying the directory will change the default to the specified 
+;      directory. This READDATA2 allows reading data from only one sideband by
+;      specifying the sideband keyword, it also roughly estimate the necessary
+;      time on bottleneck steps.
+;@directory:
+;      To specify the designated directory where data are located.
+;@sideband:
+;      To specify the sideband to read, by default the problem will read
+;      double sideband data. One can specify "lsb" or "usb" if only one sideband
+;      reading is desired.
+;&history
+;------------------------------------------------------------------------
+;      cykuo 10feb04 adapting the header
+;------------------------------------------------------------------------ 
+
+common global
+common data_set
+common wlm
+
+  if keyword_set(directory) then begin
+    nchar = strlen(directory)
+    checkslash = strmid(directory,nchar-1,1)
+    if ( strmatch(checkslash,'/') le 0 ) then directory = directory + '/'
+    e.idl_bcp=directory
+
+    count = 0
+    result = findfile(e.idl_bcp+'in_read',count=count)
+    if (count eq 0) then begin
+        print,'could not find file ',e.idl_bcp+'in_read'
+        return
+    endif
+    count = 0
+    result = findfile(e.idl_bcp+'bl_read',count=count)
+    if (count eq 0) then begin
+        print,'could not find file ',e.idl_bcp+'bl_read'
+        return
+    endif
+    count = 0
+    result = findfile(e.idl_bcp+'sp_read',count=count)
+    if (count eq 0) then begin
+        print,'could not find file ',e.idl_bcp+'sp_read'
+        return
+    endif
+    count = 0
+    result = findfile(e.idl_bcp+'codes_read',count=count)
+    if (count eq 0) then begin
+        print,'could not find file ',e.idl_bcp+'codes_read'
+        return
+    endif
+    count = 0
+    result = findfile(e.idl_bcp+'sch_read',count=count)
+    if (count eq 0) then begin
+        print,'could not find file ',e.idl_bcp+'sch_read'
+        return
+    endif
+
+    result=dbi_sub_read(in_rx=in_rx, in_sideband=in_sideband, $
+                        in_source = in_source, in_band = in_band, $
+                        in_baseline=in_baseline, in_integration=in_integration, $
+                        min_scan_length=min_scan_length, verbose=verbose, preview=preview)
+  endif else begin
+
+    result=dbi_sub_read(in_rx=in_rx, in_sideband=in_sideband, $
+                        in_source = in_source, in_band = in_band, $
+                        in_baseline=in_baseline, in_integration=in_integration, $
+                        min_scan_length=min_scan_length, verbose=verbose, preview=preview)
+  endelse
+
+
+res=dat_list(s_l,/reset)
+distinct_bands=uti_distinct(sp[psl].iband,nbands,/many_repeat)
+res=dat_list(s_l,'"band" eq "c1"',/reset,/no_notify)
+
+cont_bw=(nbands-1.)*82.
+if sp[psl[0]].fres ne cont_bw then sp[psl].fres = (sp[psl].fres/abs(sp[psl].fres)) * cont_bw
+res=dat_list(s_l,/reset)
+
+end
+

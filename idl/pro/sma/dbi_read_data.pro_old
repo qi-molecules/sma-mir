@@ -1,0 +1,30 @@
+function dbi_read_data, int_read=int_read, skip=skip
+
+common global
+common data_set
+common wlm
+
+    if (keyword_set(skip)) then result=dbi_headint_read() $
+              else result=dbi_head_read()
+    i=where(in.inhid eq max(sp.inhid), count)
+    in_skip=(keyword_set(skip)) ? skip:0
+    bl_skip=in_skip*2*n_elements(c.blcd)
+    sp_skip=bl_skip*n_elements(c.band)
+    in_rows=(keyword_set(int_read)) ? int_read : n_elements(in)
+    bl_rows=in_rows*2*n_elements(c.blcd)
+    sp_rows=bl_rows*n_elements(c.band)
+    if (count eq 0) then begin
+      result=dbi_headint_read(in_rows=in_rows, bl_rows=bl_rows,sp_rows=sp_rows,$
+                            in_skip=in_skip, bl_skip=bl_skip,sp_skip=sp_skip)
+      goto, read_chan
+    endif
+
+    if (keyword_set(skip)) then $
+         result=dbi_headint_read(in_skip=in_skip, bl_skip=bl_skip,sp_skip=sp_skip)
+    
+    read_chan:
+    result=dbi_chan_read()
+
+    return,1
+
+end

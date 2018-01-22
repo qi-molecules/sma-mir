@@ -1,0 +1,49 @@
+;   SETUP_KEYS
+!EDIT_INPUT=50
+;!QUIET=1   ; suppress informational messages
+!MORE=0    ; don't paginate idl help output
+;DEVICE,pseudo=8
+;
+; make sure the rdx .pro directory is in path
+;
+
+user=getenv('MIR_USER')
+if user eq '' then user=getenv('USER')
+
+
+;use the domain variable to set up for either hawaii or
+; cambridge for example
+dom=getenv('CAMPUS_LOGIN')
+debug = 0
+if dom eq 'cfa' or dom eq 'sma' then java = 0
+
+if (debug) then   print,'user = ',user
+if (debug) then   print,'location = ',dom
+if (debug) then   print,'now running mir_init'
+
+pro_mir_init,user,'',dom,java,debug 
+
+common global
+common data_set
+common plo
+common wlm
+
+; restore the mir structure description {ms}
+
+filename=e.idl_sav+'ms.save'
+
+filefound=findfile(filename,count=filecount)
+
+if filecount eq 0 then print,filename,' not found'
+if filecount ne 0 then restore,filename
+
+
+;pro_mir_restore,e.save_fn
+
+; to redo the default save file, after starting idl,
+; enter the commands to read in the data you want 
+; then :
+; e.save_fn='default'      ; to specify the default save file
+; res=pro_mir_save()
+
+print,'idl_startup completed'

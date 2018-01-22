@@ -1,0 +1,12 @@
+RDXDIR=/sma/mir 
+export RDXDIR
+IDL_STARTUP=$RDXDIR/idl/idl_startup
+export IDL_STARTUP
+IDL_DIR=/opt/rsi/idl
+export IDL_DIR
+IDL_PATH=\+$RDXDIR/idl/pro:$IDL_DIR/lib
+export IDL_PATH
+IDL_DEVICE=X
+export IDL_DEVICE
+CAMPUS_LOGIN=sma
+export CAMPUS_LOGIN
