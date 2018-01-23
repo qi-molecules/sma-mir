@@ -4,18 +4,18 @@ common global
 common data_set
 
 list='"wt" gt "0" and "source" eq "'+source+'"'
-result=dat_list(s_l,list,/reset,/no_notify)
-dist_rx=c.rec[uti_distinct(bl[pbl].irec,nrx,/many)]
+result=dat_filter(s_f,list,/reset,/no_notify)
+dist_rx=c.rec[uti_distinct(bl[pbf].irec,nrx,/many)]
 
-dist_sb=c.sb[uti_distinct(bl[pbl].isb,nsb,/many)]
-dist_band=c.band[uti_distinct(sp[psl].iband,nband,/many)]
+dist_sb=c.sb[uti_distinct(bl[pbf].isb,nsb,/many)]
+dist_band=c.band[uti_distinct(sp[psf].iband,nband,/many)]
 
 
 
 for i=0,nrx-1 do begin
    list='"wt" gt "0" and "source" eq "'+source+'"'+' and "rec" eq "'+dist_rx[i]+'"'
    list=list[0]
-   result=dat_list(s_l,list,/reset,/no_notify)
+   result=dat_filter(s_f,list,/reset,/no_notify)
    if result gt 0 then begin
       for j=0,nsb-1 do begin
          for k=0,nband-1 do begin
