@@ -1,4 +1,4 @@
-function dbi_head2_read2,int_read=int_read,sideband=sideband, rx=rx, band_read=band_read,iblfix=iblfix, endianFlag=endianFlag, newwindows=newwindows, if1=if1, if2=if2, if3=if3, if4=if4, asic=asic, swarm=swarm, swmavg=swmavg, nbins=nbins
+function dbi_head2_read2,int_read=int_read,sideband=sideband, rx=rx, band_read=band_read,iblfix=iblfix, endianFlag=endianFlag, newwindows=newwindows, if1=if1, if2=if2, if3=if3, if4=if4, asic=asic, swarm=swarm, swmavg=swmavg, nbins=nbins, defaults=defaults
 common global
 common data_set
 
@@ -619,13 +619,14 @@ endelse
 file=file_search(antennasFile)
 if file eq '' then begin
    print, 'Antenna file not found !'
+   if keyword_set(defaults) then goto, finish
    aa=''
-   read,aa,prompt='Load data without antenna file? [NO <YES>] :'
-   if (aa eq 'YES' or aa eq 'yes' or aa eq 'Yes' or aa eq 'Y' or aa eq 'y') then begin
-      goto, finish
-   endif else begin
+   read,aa,prompt='Load data without antenna file? [YES <NO>] :'
+   if (aa eq 'NO' or aa eq 'no' or aa eq 'No' or aa eq 'N' or aa eq 'n') then begin
       icontinue=1
-      goto, continue
+      goto, continue      
+   endif else begin
+      goto, finish      
    endelse
 endif
    
