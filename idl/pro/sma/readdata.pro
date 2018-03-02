@@ -1,4 +1,4 @@
-pro readdata,directory=directory, int_read=int_read, skip=skip, full=full, sideband=sideband, rx=rx, band_read=band_read, old=old, if1=if1, if2=if2, if3=if3, if4=if4, asic=asic, swarm=swarm, swmavg=swmavg, windows=windows
+pro readdata,directory=directory, newformat=newformat,int_read=int_read, skip=skip, full=full, sideband=sideband, rx=rx, band_read=band_read, old=old, if1=if1, if2=if2, if3=if3, if4=if4, asic=asic, swarm=swarm, swmavg=swmavg, windows=windows, defaults=defaults
 ;yes
 ;=Task:READDATA --- To read data from specified directory
 ;#Type: i/o
@@ -84,10 +84,12 @@ if keyword_set(directory) then begin
     endif
 
 ; set up the data format environment
-    openr,unit,e.idl_bcp+'in_read',/get_lun,error=err
-    newformat=0L
-    readu,unit,newformat
-    close,unit & free_lun,unit
+    if not keyword_set(newformat) then begin
+       openr,unit,e.idl_bcp+'in_read',/get_lun,error=err
+       newformat=0L
+       readu,unit,newformat
+       close,unit & free_lun,unit
+    endif
     if newformat ne 0 then begin
        print,'****************************New data format ...'
        msfile=e.idl_sav+'ms_newformat.save' 
@@ -102,7 +104,7 @@ if keyword_set(directory) then begin
        result=dbi_head2_read2(int_read=int_read, $
          sideband=sideband,rx=rx,band_read=band_read,$
          iblfix=iblfix, endianFlag=endianFlag,newwindows=windows,$
-         if1=if1, if2=if2, if3=if3, if4=if4, $
+         if1=if1, if2=if2, if3=if3, if4=if4, defaults=defaults,$
          asic=asic, swarm=swarm, swmavg=swmavg, nbins=nbins)
        if result lt 0 then return
        result=dbi_chan2_read2(int_read=int_read, $
@@ -112,7 +114,7 @@ if keyword_set(directory) then begin
     endif else begin
        result=dbi_head_read2(int_read=int_read, $
          sideband=sideband,rx=rx,band_read=band_read,$
-         bw=bw,iblfix=iblfix, endianFlag=endianFlag)
+         bw=bw,iblfix=iblfix, endianFlag=endianFlag,defaults=defaults)
        if result lt 0 then return
        result=dbi_chan_read2(int_read=int_read, $
          endianFlag=endianFlag)
@@ -123,10 +125,12 @@ if keyword_set(directory) then begin
  endif else begin
 
 ; set up the data format environment
-    openr,unit,e.idl_bcp+'in_read',/get_lun,error=err
-    newformat=0L
-    readu,unit,newformat
-    close,unit & free_lun,unit
+    if not keyword_set(newformat) then begin
+       openr,unit,e.idl_bcp+'in_read',/get_lun,error=err
+       newformat=0L
+       readu,unit,newformat
+       close,unit & free_lun,unit
+    endif
     if newformat ne 0 then begin
        print,'****************************New data format ...'
        msfile=e.idl_sav+'ms_newformat.save' 
@@ -142,7 +146,7 @@ if keyword_set(directory) then begin
        result=dbi_head2_read2(int_read=int_read, $
          sideband=sideband,rx=rx,band_read=band_read,$
          iblfix=iblfix, endianFlag=endianFlag,newwindows=windows,$
-         if1=if1, if2=if2, if3=if3, if4=if4, $
+         if1=if1, if2=if2, if3=if3, if4=if4, defaults=defaults,$
          asic=asic, swarm=swarm, swmavg=swmavg, nbins=nbins)
        if result lt 0 then return
        result=dbi_chan2_read2(int_read=int_read, $
@@ -152,7 +156,7 @@ if keyword_set(directory) then begin
     endif else begin
        result=dbi_head_read2(int_read=int_read, $
          sideband=sideband,rx=rx,band_read=band_read,$
-         bw=bw,iblfix=iblfix, endianFlag=endianFlag)
+         bw=bw,iblfix=iblfix, endianFlag=endianFlag,defaults=defaults)
        if result lt 0 then return
        result=dbi_chan_read2(int_read=int_read, $
          endianFlag=endianFlag)
