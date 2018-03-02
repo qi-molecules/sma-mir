@@ -3576,7 +3576,7 @@ result=fits_wint ('FREQID',-1,'')
 result=fits_wdble('IATUTC',0.d0,'')
 
 
-if (site eq 'saosma') then  result=fits_wstr('ARRNAM ','SAO SMA ','')
+if (site eq 'saosma') then  result=fits_wstr('ARRNAM ','SMA','')
 if (site eq 'ovromma') then result=fits_wstr('ARRNAM ','OVRO MMA','')
 
 result=fits_wend ()
@@ -4047,8 +4047,8 @@ case site of
                         fc1=1.
 		   end
 	'saosma': begin
-			telescope = 'SAO SMA '
-			instrument = 'SAO SMA '
+			telescope = 'SMA'
+			instrument = 'SMA'
 			diameter = 6.0
 			lat = 19.82420526391d0 ; Pad #1
                         result=dat_list(s_l,'"band" eq "c1"',/reset,/no_notify)
@@ -4177,6 +4177,7 @@ n_elements(rfreq),n_elements(fres),n_elements(vel),n_elements(psl)
 
 ;scalars
 nch=sp[psl[0]].nch
+if nch eq 1 then rfreq=sp[psl].fsky
 ;vtype=c.vtype[sp[psl[0]].ivtype]
 vtype='vlsr' ; turn off vtype reading for sma new data format.
 
@@ -4869,41 +4870,41 @@ print,'distinct_tels  ',distinct_tels
 ; write FITS-AIPS antenna tables:
 ;
 for icon=0,n_elements(distinct_soids)-1 do begin
-  stx0=reform(posx[icon,*]) & sty0=reform(posy[icon,*]) & stz0=reform(posz[icon,*])
-  stname0=reform(telname[icon,*])
-  stnum0 =reform( telnum[icon,*])
-  jj=where(fix(stnum0) eq 1) 
-  if jj lt 0 then begin
-         stname='AN01' 
-         stnum=['1']
-         stx=9999
-         sty=9999
-         stz=9999
-  endif else begin
-         stname=stname0[0]
-         stnum=stnum0[0]
-         stx=stx0[0]
-         sty=sty0[0]
-         stz=stz0[0]
-  endelse
-  for ii=1l, 7l do begin
-    jj=where(fix(stnum0) eq (ii+1))
-    if jj[0] lt 0 then begin
-       stname=[stname,'AN0'+strcompress(string(ii+1),/remove_all)]
-       stnum=[stnum, strcompress(string(ii+1),/remove_all)]
-       stx=[stx,9999]
-       sty=[sty,9999]
-       stz=[stz,9999]
-    endif else begin
-       stname=[stname,stname0[jj]]
-       stnum=[stnum,stnum0[jj]]
-       stx=[stx,stx0[jj]]
-       sty=[sty,sty0[jj]]
-       stz=[stz,stz0[jj]]
-    endelse        
+   stx0=reform(posx[icon,*]) & sty0=reform(posy[icon,*]) & stz0=reform(posz[icon,*])
+   stname0=reform(telname[icon,*])
+   stnum0 =reform( telnum[icon,*])
+   jj=where(fix(stnum0) eq 1) 
+   if jj lt 0 then begin
+      stname='AN01' 
+      stnum=['1']
+      stx=9999
+      sty=9999
+      stz=9999
+   endif else begin
+      stname=stname0[0]
+      stnum=stnum0[0]
+      stx=stx0[0]
+      sty=sty0[0]
+      stz=stz0[0]
+   endelse
+   for ii=1l, 8l do begin
+      jj=where(fix(stnum0) eq (ii+1))
+      if jj[0] lt 0 then begin
+         stname=[stname,'AN0'+strcompress(string(ii+1),/remove_all)]
+         stnum=[stnum, strcompress(string(ii+1),/remove_all)]
+         stx=[stx,9999]
+         sty=[sty,9999]
+         stz=[stz,9999]
+      endif else begin
+         stname=[stname,stname0[jj]]
+         stnum=[stnum,stnum0[jj]]
+         stx=[stx,stx0[jj]]
+         sty=[sty,sty0[jj]]
+         stz=[stz,stz0[jj]]
+      endelse        
    endfor
 ;  result=fits_want_ascii(n_elements(stx),icon,stname,stx,sty,stz,site)
-  result=fits_want(n_elements(stx),icon,stnum,stname,stx,sty,stz,freq[0],datobs,site)
+   result=fits_want(n_elements(stx),icon,stnum,stname,stx,sty,stz,freq[0],datobs,site)
 endfor
 
 ; finished with antenna table
