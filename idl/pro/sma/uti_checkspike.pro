@@ -128,6 +128,6 @@ if keyword_set(fix) and s[0] gt 1 then begin
    endfor
    print,'Channel-fix done with sample = '+strcompress(string(sample),/remove)+' !'
    result=dat_filter(s_s,/restore)
-endif else print,'No spike found !'
+endif else print,'No more spike found !' 
 
 end
