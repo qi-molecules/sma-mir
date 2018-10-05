@@ -1,4 +1,4 @@
-function gain_xpol,gai_souids,gai_fluxes_3mm,gai_fluxes_1mm,tel_bsl, $
+function gain_xpol4,gai_souids,gai_fluxes_3mm,gai_fluxes_1mm,tel_bsl, $
          x_var, y_vars,frames_per_page,dt_smooth=dt_smooth,plid, $
          refant=refant, loose=loose, connect=connect, preavg=preavg, $
          no_unwrap=no_unwrap,non_point=non_point, multicolor=multicolor, $
@@ -110,7 +110,7 @@ distinct_bls=uti_distinct(bls,nbls,/many_repeat)
 ;
 
 cmps=make_array(1,/complex,/nozero)
-result=dat_list(s_l,souid_str+'and (("ipol" eq "1") or ("ipol" eq "4")) and "iband" eq "0" and "wt" gt "0"',/reset)
+result=dat_list(s_l,souid_str+'and (("ipol" eq "4")) and "iband" eq "0" and "wt" gt "0"',/reset)
 
 a0=pil & a1=pbl & a2=psl & a3=pcl & a4=prl
 
@@ -142,7 +142,7 @@ cmps=cmps[1L:nc-1L]
 uti_conv_apc,cmps,amps,phas,/amp_pha
 
 souid_str=souid_str+' and "blcd" eq "'+c.blcd[refib]+'"'
-result=dat_list(s_l,souid_str+' and (("ipol" eq "1") or ("ipol" eq "4")) and "band" like "c" and "wt" gt "0"', /no_notify, /reset)
+result=dat_list(s_l,souid_str+' and (("ipol" eq "4")) and "band" like "c" and "wt" gt "0"', /no_notify, /reset)
 
 if result ne (nc-1L) then begin
    result=dat_list(s_l,/reset)
@@ -167,7 +167,7 @@ if (keyword_set(preavg)) then begin
 ;   totalints = in(pil).int
 ;   intlist = totalints(  uniq(totalints,sort(totalints) ))
 ;   nofint = n_elements(intlist)
- 
+     
     tmpblcd=strcompress(string(bl[pbl[0]].iblcd),/remove)
     tmprec=strcompress(string(bl[pbl[0]].irec),/remove)
     tmpsb=strcompress(string(bl[pbl[0]].isb),/remove)
@@ -175,7 +175,7 @@ if (keyword_set(preavg)) then begin
     result=dat_list(s_l,command,/reset,/no_notify)
     intlist=in[pil].int 
     nofint=n_elements(intlist)
-    templist=in[pil].isource
+    templist=in[pil].isource 
     tempjump=where( (templist-shift(templist,1) ne 0) or (intlist - shift(intlist,1) ne 1))
     gindex_from=tempjump
     ngroup=n_elements(tempjump)
@@ -184,7 +184,7 @@ if (keyword_set(preavg)) then begin
     ;stop
     ;print, intlist(gindex_from)
     ;print, intlist(gindex_to)
-    
+ 
 ;   gindex_from=where((intlist - shift(intlist,1)) ne 1)
 ;   gindex_to=where((intlist - shift(intlist,-1)) ne -1)
    gindex_mid= (gindex_from+gindex_to)/2

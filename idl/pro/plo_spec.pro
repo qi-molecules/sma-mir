@@ -69,11 +69,10 @@ endif
 ;
 result=dat_list(s_l,'"band" like "s"',/reset,/no)
 
-if keyword_set(source) then distinct_sources=source
 if not keyword_set(source) then begin
   sources=c.source(in(pil).isource)
   distinct_sources=uti_distinct(c.source(in(pil).isource),nsources,/many_repeat)
-endif
+endif else distinct_sources=source
 ;
 ; loop through all sources which can be seen in filter or
 ; whatever source was specified in call statement
@@ -85,6 +84,8 @@ for js=0,n_elements(distinct_sources)-1 do begin
     print,'No data for spectrum of ',distinct_sources(js)
     goto, end_sources
   endif
+
+  fsource=distinct_sources[js]
 
   intlist = uti_distinct(in[pil].int)
   intmin = min(intlist)
@@ -250,7 +251,7 @@ for js=0,n_elements(distinct_sources)-1 do begin
         ;
         case frame_vars of
 ;          'source,pos'        : frame=source+' '+pos
-          'source'            : frame=source
+          'source'            : frame=fsource
           'blcd'              : frame=blcd
           'blcd,band'         : frame=blcd+' '+strupcase(band)
           'blcd,sb'           : frame=blcd+' '+strupcase(sb)

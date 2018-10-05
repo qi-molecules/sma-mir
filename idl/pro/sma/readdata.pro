@@ -251,14 +251,18 @@ if nrecs gt 1 then begin
          print,'This dualrx track data has a DOUBLE DATA problem !'
          print,'To fix the problem, a dataset file "rawdata" containing' 
          print,'   the correct data will be created in local directory.'
-         aa=''
-         read,aa,prompt='Fix the DOUBLE DATA problem? [NO <YES>]:  '
+         if keyword_set(defaults) then begin
+            aa='YES' 
+         endif else begin
+            aa=''
+            read,aa,prompt='Fix the DOUBLE DATA problem? [NO <YES>]:  '
+         endelse
          if (aa eq 'YES' or aa eq 'yes' or aa eq 'Yes' or aa eq 'Y' or aa eq 'y') then begin
             npt=nbands*nbls
-            index=where((ps/700 mod 2) eq 1)
+            index=where((ps/npt mod 2) eq 1)
             sp[ps[index]].wt=-1.
             select,/p,/re
-            mir_save,/new,'rawdata'
+            mir_save,/new,'rawdata',/nowait
          endif else begin
             print,'NO: nothing done'
          endelse

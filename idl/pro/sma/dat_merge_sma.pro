@@ -415,16 +415,18 @@ prl=pr
 distinct_source=uti_distinct(c.source[in[pil].isource],nsources,/many_repeat)
 for is=0L, nsources -1L do begin
   result=dat_list(s_l,'"source" eq "'+distinct_source[is]+'"',/reset,/no_notify)
-  in[pil].isource=min(in[pil].isource)
+;  in[pil].isource=min(in[pil].isource)
+  in[pil].isource=min(where(c.source eq distinct_source[is]))
   in[pil].souid=in[pil].isource
 endfor
+result=dat_list(s_l,/reset,/no_notify)
 distinct_blcd=uti_distinct(c.blcd[bl[pbl].iblcd],nblcds,/many_repeat)
 for is=0L, nblcds -1L do begin
   result=dat_list(s_l,'"blcd" eq "'+distinct_blcd[is]+'"',/reset,/no_notify)
-  bl[pbl].itel1=min(bl[pbl].itel1)
-  bl[pbl].itel2=min(bl[pbl].itel2)
-  bl[pbl].iblcd=min(bl[pbl].iblcd)
-  bl[pbl].blsid=min(bl[pbl].iblcd)
+  bl[pbl].itel1=min(where(c.tel1 eq c.tel1[bl[pbl[0]].itel1]))  
+  bl[pbl].itel2=min(where(c.tel2 eq c.tel2[bl[pbl[0]].itel2]))
+  bl[pbl].iblcd=min(where(c.blcd eq distinct_blcd[is]))
+  bl[pbl].blsid=bl[pbl].iblcd
 endfor
 
 pil=pi

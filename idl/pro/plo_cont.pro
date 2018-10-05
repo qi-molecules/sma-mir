@@ -94,7 +94,7 @@ case cont_data of
                     x_var,0,/amp_pha,/list
           multi_pt=1
           if y_vars eq 'amp,pha,coh' then y_vars='amp,pha'
-          end
+       end
      else: begin 
        print,'*** ',cont_data,' invalid selection for data type !' & return,-1
      endelse
@@ -120,20 +120,65 @@ if count gt 0 then begin
   tssb[j]=!BAD_VALUE    ; added by KS
 endif
 
+if (frame_vars eq 'sb' or frame_vars eq 'rec,sb') then begin
+   allints = in[pil].int
+   intlist = allints(  uniq(allints,sort(allints) ))
+   nint = n_elements(intlist)
+   sbs=strupcase(c.sb(bl[pbl].isb))
+   frames = sbs
+   if strpos(frame_vars,'rec') gt 0 then frames=frames+' '+c.rec(bl[pbl].irec)
+   distinct_frames=uti_distinct(frames,nframes,/many_repeat)
+   for ia=0,nframes-1L do begin
+      for ib=0,nint-1L do begin
+         js=where(frames eq distinct_frames(ia) and wts gt 0. and $
+           in[pil].int eq intlist[ib], count)
+         if (count gt 0) then begin 
+            tmp_data=make_array(n_elements(js),/dcomplex)
+            uti_conv_apc, tmp_data, amps[js], phas[js], /complex
+            tmp_wts=wts[js]
+            tmp_avg=total(tmp_data*tmp_wts)/total(tmp_wts)
+            uti_conv_apc, tmp_avg, tmp_ampave, tmp_phaave, /amp_pha
+            amps[js]=tmp_ampave
+            phas[js]=tmp_phaave
+         endif
+      endfor
+   endfor
+endif
+   
+
   if (keyword_set(preavg)) then begin
 
     print,"[PREAVG SELECTED} Calculating visibility averages"
 
     pil_bak=pil & pbl_bak=pbl & psl_bak=psl & pcl_bak=pcl & prl_bak=prl
 
-    totalints = in(pil).int
-    intlist = totalints(  uniq(totalints,sort(totalints) ))
-    nofint = n_elements(intlist)
+;    totalints = in(pil).int
+;    intlist = totalints(  uniq(totalints,sort(totalints) ))
+;    nofint = n_elements(intlist)
+
+    tmpblcd=strcompress(string(bl[pbl[0]].iblcd),/remove)
+    tmprec=strcompress(string(bl[pbl[0]].irec),/remove)
+    tmpsb=strcompress(string(bl[pbl[0]].isb),/remove)
+    command=' "iblcd" eq "'+tmpblcd+'" and "iband" eq "0" and "irec" eq "'+tmprec+'" and "isb" eq "'+tmpsb+'"'
+    result=dat_list(s_l,command,/reset,/no_notify)
+    intlist=in[pil].int 
+    nofint=n_elements(intlist)
+    templist=in[pil].isource 
+    tempjump=where( (templist-shift(templist,1) ne 0) or (intlist - shift(intlist,1) ne 1))
+    gindex_from=tempjump
+    ngroup=n_elements(tempjump)
+    gindex_to=gindex_from[1:ngroup-1]-1L
+    gindex_to=[gindex_to,nofint-1]
+    ;stop
+    ;print, intlist(gindex_from)
+    ;print, intlist(gindex_to)
      
-    gindex_from=where((intlist - shift(intlist,1)) ne 1)
-    gindex_to=where((intlist - shift(intlist,-1)) ne -1)
+;    gindex_from=where((intlist - shift(intlist,1)) ne 1)
+;    gindex_to=where((intlist - shift(intlist,-1)) ne -1)
     gindex_mid= (gindex_from+gindex_to)/2
-    ngroup = n_elements(gindex_mid)
+;    ngroup = n_elements(gindex_mid)
+
+    pil=pil_bak & pbl=pbl_bak & psl=psl_bak & pcl=pcl_bak & prl=prl_bak
 
     print,'VISILITIES WILL BE GROUP AND AVERAGED'
     print,'OVER INTEGRATIONS IN THE FOLLOWING WAY:'

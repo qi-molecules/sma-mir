@@ -17,8 +17,8 @@ inh_temp={traid:0L,inhid:0L,$
          ira:0,$
          idec:0,rar:0d,decr:0d,epoch:0e,size:0e,$
          inhint1:0L,inhint2:0L,inhint3:0L,$
-         inhint4:0L,inhint5:0L,inhint6:0L,sflux:0d,$
-         inhdbl2:0d,inhdbl3:0d,inhdbl4:0d,inhdbl5:0d,inhdbl6:0d}
+         inhint4:0L,inhint5:0L,inhint6:0L,yigfreq1:0d,$
+         yigfreq2:0d,sflux:0d,inhdbl4:0d,inhdbl5:0d,inhdbl6:0d}
 blh_temp={blhid:0L,inhid:0L,isb:0,ipol:0,$
          ant1rx:0,ant2rx:0,pointing:0,irec:0,$
          u:0e,v:0e,w:0e,prbl:0e,coh:0e,$
@@ -662,7 +662,12 @@ for i=0L,nblcds-1L do begin
       print,'Two antennas on the same pad !'
       icontinue=1
       free_lun,unit
-      goto, continue
+      if keyword_set(defaults) then begin
+         print,'No uvw checking done.'
+         goto, finish
+      endif else begin
+         goto, continue
+      endelse
    endif   
 
    lat=19.82420526391d/57.29577951

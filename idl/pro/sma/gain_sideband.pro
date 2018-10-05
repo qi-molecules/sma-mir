@@ -238,14 +238,33 @@ endif
 
     pil_bak=pil & pbl_bak=pbl & psl_bak=psl & pcl_bak=pcl & prl_bak=prl
 
-    totalints = in(pil).int
-    intlist = totalints(  uniq(totalints,sort(totalints) ))
-    nofint = n_elements(intlist)
-     
-    gindex_from=where((intlist - shift(intlist,1)) ne 1)
-    gindex_to=where((intlist - shift(intlist,-1)) ne -1)
+;    totalints = in(pil).int
+;    intlist = totalints(  uniq(totalints,sort(totalints) ))
+;    nofint = n_elements(intlist)
+ 
+    tmpblcd=strcompress(string(bl[pbl[0]].iblcd),/remove)
+    tmprec=strcompress(string(bl[pbl[0]].irec),/remove)
+    tmpsb=strcompress(string(bl[pbl[0]].isb),/remove)
+    command=' "iblcd" eq "'+tmpblcd+'" and "iband" eq "0" and "irec" eq "'+tmprec+'" and "isb" eq "'+tmpsb+'"'
+    result=dat_list(s_l,command,/reset,/no_notify)
+    intlist=in[pil].int 
+    nofint=n_elements(intlist)
+    templist=in[pil].isource 
+    tempjump=where( (templist-shift(templist,1) ne 0) or (intlist - shift(intlist,1) ne 1))
+    gindex_from=tempjump
+    ngroup=n_elements(tempjump)
+    gindex_to=gindex_from[1:ngroup-1]-1L
+    gindex_to=[gindex_to,nofint-1]
+    ;stop
+    ;print, intlist(gindex_from)
+    ;print, intlist(gindex_to)
+    
+;    gindex_from=where((intlist - shift(intlist,1)) ne 1)
+;    gindex_to=where((intlist - shift(intlist,-1)) ne -1)
     gindex_mid= (gindex_from+gindex_to)/2
-    ngroup = n_elements(gindex_mid)
+;    ngroup = n_elements(gindex_mid)
+
+    pil=pil_bak & pbl=pbl_bak & psl=psl_bak & pcl=pcl_bak & prl=prl_bak
 
     print,'VISILITIES WILL BE GROUP AND AVERAGED'
     print,'OVER INTEGRATIONS IN THE FOLLOWING WAY:'

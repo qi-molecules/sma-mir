@@ -37,9 +37,18 @@ print,'TSYS reading ...'
 ;  1. the correlator setup is fixed for the whole track -
 ;  2. tsys file contains the tsys information from antennas used in the track
 distinct_iband=uti_distinct(sp.iband,nbands,/many_repeat)
-distinct_irec=uti_distinct(bl.irec,nrecs,/many_repeat)
+dist_irec=uti_distinct(bl.irec,nrecs,/many_repeat)
+
+itmp=where(dist_irec ne -1, ncount)
+if ncount ne nrecs then begin
+   nrecs=nrecs-1
+   distinct_irec=dist_irec[itmp]
+   result=dat_filter(s_f,'"irec" eq "-1"',/reset,/no_notify)
+   sp[psf].tssb=9999.
+endif else distinct_irec=dist_irec
+
 if nrecs gt 2 then begin
-   print,'More than ',nrecs, ' receivers data recorded.'
+   print,' ',nrecs, ' receivers data recorded.'
    print,'Quit!'
    return
 endif

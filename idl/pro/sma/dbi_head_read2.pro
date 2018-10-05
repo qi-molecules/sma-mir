@@ -495,7 +495,12 @@ for i=0L,nblcds-1L do begin
       print,'Two antennas on the same pad !'
       icontinue=1
       free_lun,unit
-      goto, continue
+      if keyword_set(defaults) then begin
+         print,'No uvw checking done.'
+         goto, finish
+      endif else begin
+         goto, continue
+      endelse
    endif   
 
    lat=19.82420526391d/57.29577951

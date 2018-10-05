@@ -1,4 +1,4 @@
-pro uti_phaseclosure,autocycle=autocycle
+pro uti_phaseclosure,cycle=cycle, auto=auto, title=title
 ;yes
 ;=Task:UTI_PHASECLOSURE --- To plot the phase closure of data
 ;#Type: utility
@@ -16,6 +16,7 @@ pro uti_phaseclosure,autocycle=autocycle
 common global
 common data_set
 
+!p.font=-1
 red = [0,1,1,0,0,1]
 green = [0,1,0,1,0,1]
 blue = [0,1,0,0,1,0]
@@ -41,7 +42,7 @@ tvlct, 255*red, 255*green, 255*blue
 
  while(j eq 0) do begin
 
-   if (not keyword_set(autocycle)) then begin
+   if (not keyword_set(cycle)) then begin
      temp=''
      start:
      print,'Enter 3 antenna numbers seperated by comma, eg: 2,3,4'
@@ -61,10 +62,10 @@ tvlct, 255*red, 255*green, 255*blue
    endelse
 
 
-   titlename='Phase Closure: '+parts(0)+'-'+parts(1)+'-'+parts(2)
+   if keyword_set(title) then titlename=title+' Phase Closure: '+parts(0)+'-'+parts(1)+'-'+parts(2) else titlename='Phase Closure: '+parts(0)+'-'+parts(1)+'-'+parts(2)
    bsl=strarr(3)
    bsl=[parts(0)+'-'+parts(1),parts(1)+'-'+parts(2),parts(0)+'-'+parts(2)]
-   print,'getting phase closure of ',parts(0)+'-'+parts(1)+'-'+parts(2)
+   if not keyword_set(auto) then print,'getting phase closure of ',parts(0)+'-'+parts(1)+'-'+parts(2)
 
    ii=where(bsl[0] eq c.blcd, count)
    if (count gt 0) then begin
@@ -133,30 +134,30 @@ tvlct, 255*red, 255*green, 255*blue
      x=in[pil].int
      plot,x,l012,/nodata,yrange=[-180,180],/ystyle,ytitle='P H A S E',title=titlename,xtitle='I N T E G R A T I O N'
      if (lplot) then begin
-        oplot,x,l012,psym=4,color=2
-        if lcount gt 0 then oplot,x[i_wl],l012[i_wl],psym=7,color=1,symsize=2
+        oplot,x,l012,psym=4,color=3
+        if lcount gt 0 then oplot,x[i_wl],l012[i_wl],psym=7,color=2,symsize=2
      endif
      if (uplot) then begin
-        oplot,x,u012,psym=4,color=3
-        if ucount gt 0 then oplot,x[i_wu],u012[i_wu],psym=7,color=1,symsize=2
+        oplot,x,u012,psym=4,color=4
+        if ucount gt 0 then oplot,x[i_wu],u012[i_wu],psym=7,color=2,symsize=2
      endif
-;     xyouts,max(x)/3,160,'Sideband L',color=2,charsize=8
-;     xyouts,max(x)/1.5,160,'Sideband U',color=3,charsize=8
-;     xyouts,max(x)/1.2,160,'Flagged Data',color=1,charsize=8
-     xyouts,max(x)/1.1,160,'Sideband L',color=2,charsize=8
-     xyouts,max(x)/1.1,140,'Sideband U',color=3,charsize=8
-     xyouts,max(x)/1.1,120,'Flagged Data',color=1,charsize=8
+
+     xyouts,0.1,0.98,'Sideband L',color=3,charsize=1,/normal
+     xyouts,0.2,0.98,'Sideband U',color=4,charsize=1,/normal
+     xyouts,0.85,0.98,'Flagged Data',color=2,charsize=1,/normal
    endif
 
    finish:
 
-   if (not keyword_set(autocycle)) then begin
+   if (not keyword_set(cycle)) then begin
      temp1=''
      read,temp1,prompt='Another sets of antenna ? Y/[N]:'
      if (temp1 eq 'N' or temp1 eq 'n' or temp1 eq 'no' or temp1 eq 'NO') then j=1
    endif else begin
-     print,'PRESS ANY KEY TO CONTINUE'
-     keyin = get_kbrd(1)
+     if not keyword_set(auto) then begin
+        print,'PRESS ANY KEY TO CONTINUE'
+        keyin = get_kbrd(1)
+     endif
      ac3=ac3+1
      if (ac3 eq ntels) then begin
        ac2=ac2+1

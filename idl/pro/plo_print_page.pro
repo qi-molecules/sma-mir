@@ -44,7 +44,8 @@ endcase
 ;Initialize everything that needs to be initialized
 ;
 iframe=s_page.iframe
-frames_per_page=s_page.frames_per_page & xs=s_page.xs
+;frames_per_page=s_page.frames_per_page & xs=s_page.xs
+frames_per_page=s_page.frames_per_page
 nframes=s_page.nframes
 nrow=s_page.nrow
 ncol=s_page.ncol
