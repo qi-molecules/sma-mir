@@ -232,7 +232,7 @@ distinct_recs=uti_distinct(bl[pbf].irec,nrecs,/many_repeat)
 
 if nrecs gt 1 then begin
    sint0=strcompress(string(in[pif[0]].int),/remove)
-
+   res=dat_filter(s_f,'"int" eq "'+sint0+'"',/no_notify,/reset)
    distinct_sbs=uti_distinct(bl[pbf].isb,nsbs,/many_repeat)
 ;   distinct_bands=uti_distinct(sp[psf].iband,nbands,/many_repeat)
    distinct_bls=uti_distinct(bl[pbf].iblcd,nbls,/many_repeat)

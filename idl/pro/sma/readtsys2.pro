@@ -48,7 +48,9 @@ if ncount ne nrecs then begin
 endif else distinct_irec=dist_irec
 
 if nrecs gt 2 then begin
-   print,' ',nrecs, ' receivers data recorded.'
+   print,'*****',nrecs, ' receivers data recorded.'
+   print,'Please fix the receiver header first ' 
+   print,' before using readtsys2 to load tsys again!'
    print,'Quit!'
    return
 endif

@@ -32,5 +32,4 @@ sma/dat_merge_sma.pro (for second track has more baselines)
 sma/readdata.pro (double data fix)
 sma/readtsys2.pro (small bug about irec eq -1)
 sma/dbi_head2_read2.pro (correct for the inh headers, uvw checking)
-
-
+sma/uti_checkspike.pro (bug fixed in smoothing amplitude)

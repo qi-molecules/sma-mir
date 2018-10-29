@@ -65,7 +65,7 @@ for i=0, nbands-1 do begin
             amp=amp[ntrim:npts[0]-ntrim-1]
             npts=npts-2*ntrim
             amprms=stddev(amp)
-            ampsmooth=smooth([amp<0.001],npts/100,/edge_mirror)
+            ampsmooth=smooth(amp,npts/100,/edge_mirror)
             i_spike=where(abs(amp-ampsmooth) gt threshold*amprms,count)
             if count gt 0 then begin
                for is=0, count-1 do begin
@@ -94,7 +94,7 @@ for i=0, nbands-1 do begin
                amp=amp[ntrim:npts[0]-ntrim-1]
                npts=npts-2*ntrim
                amprms=stddev(amp)
-               ampsmooth=smooth([amp<0.001],npts/100,/edge_mirror)
+               ampsmooth=smooth(amp,npts/100,/edge_mirror)
                i_spike=where(abs(amp-ampsmooth) gt threshold*amprms,count)
                if count gt 0 then begin
                   for is=0, count-1 do begin
