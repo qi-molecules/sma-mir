@@ -7,12 +7,8 @@ https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
 
-Jan. 2018: added uti_checkspike.pro, autocal.pro, autofits.pro
-
-Mar. 2018: updated fits_out.pro for correct continuum freq header
-                   uti_checkspike.pro for mis. message
-                   readdata.pro, dbi_head2_read2.pro, dbi_head_read2.pro
-                      for batch processing without checking ant file.
+Jan. 2019:
+uti_doppler_fix.pro  adding a line to fix vres 
 
 Oct. 2018: 
 plo_print_page.pro removing xs=s_page.xs
@@ -33,3 +29,10 @@ sma/readdata.pro (double data fix)
 sma/readtsys2.pro (small bug about irec eq -1)
 sma/dbi_head2_read2.pro (correct for the inh headers, uvw checking)
 sma/uti_checkspike.pro (bug fixed in smoothing amplitude)
+
+Mar. 2018: updated fits_out.pro for correct continuum freq header
+                   uti_checkspike.pro for mis. message
+                   readdata.pro, dbi_head2_read2.pro, dbi_head_read2.pro
+                      for batch processing without checking ant file.
+
+Jan. 2018: added uti_checkspike.pro, autocal.pro, autofits.pro

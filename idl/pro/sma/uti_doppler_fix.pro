@@ -23,6 +23,8 @@ if n_elements(reference) gt 1 then begin
    return
 endif
 
+; reset vres 
+sp.vres=-1.*sp.fres/sp.fsky*!cvel/1e6
 
 ; Parameters
 SECONDS_PER_DAY=24.*60.*60.
