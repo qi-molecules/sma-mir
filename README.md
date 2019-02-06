@@ -6,6 +6,12 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+Feb. 2019
+add uti_avgbandx.pro for testing, excludefreq keyword
+modify autofits to allow more sources output
+modify uti_tsys_fix.pro for noninteractive tsys fixing
+modify uti_doppler_fix.pro, disabling fft correction, replace it
+ with cubic convolution
 
 Jan. 2019:
 uti_doppler_fix.pro  adding a line to fix vres 

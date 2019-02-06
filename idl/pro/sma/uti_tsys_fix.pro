@@ -29,7 +29,7 @@
 ;      use different parameters to get better fit.   
 ;         If users would like to use the program in scripts without inquiring
 ;      about fixing tsys, they can use
-;      IDL>uti_tsys_cor, highlimit=500,lowlimit=300,/no_display.
+;      IDL>uti_tsys_cor, highlimit=500,lowlimit=300,/auto
 ;&history:
 ;----------------------------------------------------------------------------
 ;      cykuo 03mar04 adapting the header
@@ -45,7 +45,7 @@ PRO tsys_gfunct, X, A, F, pder
 END
 
 pro uti_tsys_fix, highlimit=highlimit, lowlimit=lowlimit, loose=loose, tel_bsl=tel_bsl, $
-                  refant=refant, no_display=no_display, refit=refit, verbose=verbose
+                  refant=refant, auto=auto, refit=refit, verbose=verbose
 
 common global
 common data_set
@@ -60,8 +60,10 @@ print, '########################################################'
 print, 'THIS PROGRAM WILL RESET DATA LIST/FILTER IN THE PROCESS.'
 print, 'IF INTERUPPTED, BE SURE TO MANUALLY RESET YOUR FILTER.'
 print, '########################################################'
-print, 'PRESS ANY KEY TO CONTINUE.....'
-keyin = get_kbrd(1)
+if not keyword_set(auto) then begin
+   print, 'PRESS ANY KEY TO CONTINUE.....'
+   keyin = get_kbrd(1)
+endif
 
 if (strcmp(tel_bsl,'baseline')) then begin
 
@@ -95,7 +97,7 @@ if (strcmp(tel_bsl,'baseline')) then begin
 
       if count gt 0 then begin
         aa='YES'
-        if not keyword_set(no_display) then begin
+        if not keyword_set(auto) then begin
           xline=(max(in[pil].el)-min(in[pil].el))/100.*indgen(100)+min(in[pil].el)
           yline=A[0]*exp(A[1]/(sin(xline*!pi/180.)))+A[2]
           print, 'Fitting tsys values for source '+distinct_source[is]+' on baseline '+distinct_blcd[ib]
@@ -412,7 +414,7 @@ if (strcmp(tel_bsl,'telescope')) then begin
             A=[400.,0.2,c0]
             gd_curve=curvefit(gd_xx,gd_tsys,weights,A,sigma,itmax=200,function_name='tsys_gfunct')
 
-            if not keyword_set(no_display) then begin
+            if not keyword_set(auto) then begin
               print,'Showing ANT ', distinct_tels(iant), "  SIDEBAND ", c.sb[all_sb[k]], " :"
               xline=(max(gd_el)-min(gd_el))/100.*indgen(100)+min(gd_el)
               yline=A[0]*exp(A[1]/(sin(xline*!pi/180.)))+A[2]
@@ -437,7 +439,7 @@ if (strcmp(tel_bsl,'telescope')) then begin
               gd2_tsys = pl_tsys(jgood)
               gd2_el   = pl_el(jgood)
 
-              if not keyword_set(no_display) then begin
+              if not keyword_set(auto) then begin
                 oplot,gd2_el,gd2_tsys,psym=6,color=250
               endif
             endif
@@ -455,7 +457,7 @@ if (strcmp(tel_bsl,'telescope')) then begin
                 weights=fltarr(goodcnt2)+1.
                 gd2_curve=curvefit(gd2_xx,gd2_tsys,weights,A,sigma,itmax=200,function_name='tsys_gfunct')
 
-                if not keyword_set(no_display) then begin
+                if not keyword_set(auto) then begin
                   xline=(max(gd2_el)-min(gd2_el))/100.*indgen(100)+min(gd2_el)
                   yline=A[0]*exp(A[1]/(sin(xline*!pi/180.)))+A[2]
                   oplot,xline,yline,color=250
@@ -473,7 +475,7 @@ if (strcmp(tel_bsl,'telescope')) then begin
 
             coeff(*,iant,k) = A
 
-            if not keyword_set(no_display) then begin
+            if not keyword_set(auto) then begin
               print, "PRESS ANY KEY TO CONTINUE....."
               keyin = get_kbrd(1)
             endif
