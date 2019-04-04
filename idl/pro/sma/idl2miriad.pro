@@ -610,9 +610,9 @@ if keyword_set(state) then  list = list + ' and "pol" eq "'+strcompress(state,/r
   telescop = 'SMA'
   version  = 'SMA 1.0'
   SMAlatitude = 19.82420526391d0 ; pad # 1 (extracted from fits_out.pro)
-  SMAlatitude = SMAlatitude * 2 * !PI / 360.0
+  SMAlatitude = SMAlatitude * 2 * !DPI / 360.0
 
-  SMAlongitude = (360. - (155.+(28.+37.20394/60.)/60.0))/360.*2.*!PI 
+  SMAlongitude = (360. - (155.+(28.+37.20394/60.)/60.0))/360.*2.*!DPI 
                  ; currently using JCMT's longitude on MKO webpage
 
   nants = long(8)
@@ -676,7 +676,7 @@ if keyword_set(state) then  list = list + ' and "pol" eq "'+strcompress(state,/r
   if (LO gt 400 and LO lt 700) then reff = 0.40                                 
 
   ; Jansky-per-Kelvin conversion factor
-  jyperk = float((2 * 1.38e3 / !PI) / (reff * rant^2))
+  jyperk = float((2 * 1.38e3 / !DPI) / (reff * rant^2))
 
   ; pb hwhm (= 16.985 * 345 / LO) is based on beam calculator on TEST CENTRAL
   pbfwhm = float(2. * (16.985 * 345. / LO))
@@ -689,16 +689,16 @@ if keyword_set(state) then  list = list + ' and "pol" eq "'+strcompress(state,/r
   print, ""
   print, "Checking source positions/pointings"
 
-  tmp_ra_list = uti_distinct(c.ra[in[pil].ira], nra)
+  tmp_ra_list = uti_distinct(in[pil].rar, nra)
   ra_index = make_array(n_elements(in[pil]),/int)
   for i=0, (nra -1) do begin
-    matchidx = where(strcmp(c.ra[in[pil].ira],tmp_ra_list[i]))
+    matchidx = where(in[pil].rar eq tmp_ra_list[i])
     ra_index[matchidx] = i
   endfor
-  tmp_dec_list = uti_distinct(c.dec[in[pil].idec], ndec)
+  tmp_dec_list = uti_distinct(in[pil].decr, ndec)
   dec_index = make_array(n_elements(in[pil]),/int)
   for i=0, (ndec - 1) do begin
-    matchidx = where(strcmp(c.dec[in[pil].idec],tmp_dec_list[i]))
+    matchidx = where(in[pil].decr eq tmp_dec_list[i])
     dec_index[matchidx] = i
   endfor
   off_index = ra_index * ndec + dec_index
@@ -713,7 +713,8 @@ if keyword_set(state) then  list = list + ' and "pol" eq "'+strcompress(state,/r
   for i=0, (noff - 1) do begin
     tmp_raidx  = tmp_off_list[i]/ndec 
     tmp_decidx = tmp_off_list[i] mod ndec
-    matchidx = where(strcmp(c.ra[in[pil].ira],tmp_ra_list[tmp_raidx]) and strcmp(c.dec[in[pil].idec],tmp_dec_list[tmp_decidx]))
+;    matchidx = where(strcmp(c.ra[in[pil].ira],tmp_ra_list[tmp_raidx]) and strcmp(c.dec[in[pil].idec],tmp_dec_list[tmp_decidx]))
+    matchidx = where(in[pil].rar eq tmp_ra_list[tmp_raidx] and in[pil].decr eq tmp_dec_list[tmp_decidx])
 
     print,"Pointing ", i, " index ", tmp_raidx, tmp_decidx
     print," RA= ", tmp_ra_list[tmp_raidx], ", Dec= ", tmp_dec_list[tmp_decidx], ", RA off = ", in[pil[matchidx[0]]].offx, ", Dec off= ", in[pil[matchidx[0]]].offy
@@ -727,7 +728,7 @@ if keyword_set(state) then  list = list + ' and "pol" eq "'+strcompress(state,/r
     srcdec = in[pil[ref_dec_idx]].decr
   endif else begin
     ddec = in[pil[matchidx[0]]].offy
-    ddec = ddec * double(2. * !PI/ (60.*60.*360.))
+    ddec = ddec * double(2. * !DPI/ (60.*60.*360.))
     srcdec = in[pil[matchidx[0]]].decr - ddec
   endelse
 
@@ -735,7 +736,7 @@ if keyword_set(state) then  list = list + ' and "pol" eq "'+strcompress(state,/r
     srcra  = in[pil[ref_ra_idx]].rar
   endif else begin
     dra = in[pil[matchidx[0]]].offx
-    dra =dra * double(2. * !PI / (60.*60.*360.))
+    dra =dra * double(2. * !DPI / (60.*60.*360.))
     srcra = in[pil[matchidx[0]]].rar - dra/cos(srcdec)
   endelse
 
@@ -747,14 +748,14 @@ if keyword_set(state) then  list = list + ' and "pol" eq "'+strcompress(state,/r
   if (mosaic_flag eq 1 and noff ne 1.) then begin
     print, "*** Dataset with mosaic fields ***"
 
-    srcra_tmp = srcra / (2.*!PI) * 24.
+    srcra_tmp = srcra / (2.*!DPI) * 24.
     srcra_h = floor(srcra_tmp)
     srcra_tmp = (srcra_tmp - srcra_h) * 60.
     srcra_m = floor(srcra_tmp)
     srcra_tmp = (srcra_tmp - srcra_m) * 60.
     srcra_s = srcra_tmp
 
-    srcdec_tmp = double(srcdec / (2.*!PI) * 360.)
+    srcdec_tmp = double(srcdec / (2.*!DPI) * 360.)
     if (srcdec_tmp ge 0) then begin
       srcdec_d = floor(srcdec_tmp)
       srcdec_tmp = double((srcdec_tmp - srcdec_d) * 60.)
@@ -1271,7 +1272,7 @@ if keyword_set(state) then  list = list + ' and "pol" eq "'+strcompress(state,/r
        juldate, truedate, jd
        jd=jd+2400000.d0
 
-       ut = double( ((jd-0.5) - floor(jd-0.5)) * 2. * !PI)
+       ut = double( ((jd-0.5) - floor(jd-0.5)) * 2. * !DPI)
        result=CALL_EXTERNAL(libfile, $
                         'idl_uvputvr',unit,'d','ut',ut, one)
 
@@ -1284,8 +1285,8 @@ if keyword_set(state) then  list = list + ' and "pol" eq "'+strcompress(state,/r
          ddec = in[pil[l[0]]].offy
 
          if (verbose) then print, "mosaicing pointing offsets (in arcsecs)", dra, ddec
-         dra =  dra * float(2. * !PI / (60.*60.*360.))
-         ddec = ddec * float(2. * !PI / (60.*60.*360.))
+         dra =  dra * float(2. * !DPI / (60.*60.*360.))
+         ddec = ddec * float(2. * !DPI / (60.*60.*360.))
 
          result=CALL_EXTERNAL(libfile, $
                         'idl_uvputvr',unit,'r','dra',dra, one)

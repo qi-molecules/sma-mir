@@ -521,6 +521,22 @@ endelse
 
 if keyword_set(sideband) or keyword_set(rx) then begin
    if keyword_set(rx) then begin
+      itmp=uti_distinct(bl.irec,nrec,/many)
+      if nrec gt 2 then begin
+         print,''
+         print,'************************************************************************************'
+         print,'  There  are ',nrec,' receivers in this track which is more than 2!'
+         print,'  Something is wrong with the receiver headers so that selecting RX would not work'
+         print,'  unless you specify the correct integration range with the right receiver headers.'
+         print,'************************************************************************************'
+         print,''
+         aa=''
+         read,aa,prompt='Type Yes to proceed, otherwise return for No as default: '
+         if (aa eq 'YES' or aa eq 'yes' or aa eq 'Yes' or aa eq 'Y' or aa eq 'y') then begin
+            print,'OK, continue the receiver selection data reading ...'
+         endif else stop
+      endif
+         
       irx=where(c.rec eq strcompress(string(rx),/remove),count)
       if count eq 0 then begin
          print, rx, ' receiver not available. Quit!'

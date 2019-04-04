@@ -4345,7 +4345,7 @@ case 1 of
 else : fitvel=257
 endcase
 
-ra50=rar*!radeg & dec50=decr*!radeg
+ra50=rar*180./!DPI & dec50=decr*180./!DPI
 
 if (nch eq 1) then begin
    refch=1.0
@@ -4392,8 +4392,8 @@ wtmax = max(wt)
 dat_get_rows,cmp,amp,pha,x,wts,first,npts,'channel',0,/list, $
              order='chan',average='int'
 if ((band[0] eq 'c1' or band[0] eq 'c2') and (not records)) then begin
-   amax = double(max([bl[pbl].ampave*cos(bl[pbl].phaave/!radeg), $
-                      bl[pbl].ampave*sin(bl[pbl].phaave/!radeg)]))
+   amax = double(max([bl[pbl].ampave*cos(bl[pbl].phaave*!DPI/180.), $
+                      bl[pbl].ampave*sin(bl[pbl].phaave*!DPI/180.)]))
 endif else begin
    amax = double(max([float(cmp),imaginary(cmp)]))
 endelse
@@ -4846,11 +4846,11 @@ endcase
 
 
 ; compute geocentric coordinates from local coordinates
-    posx(icon,jtel) = (tu[icon,jtel] + dtu[icon,jtel]*1.d-3) * cos(lat/!radeg) $
-       - (tn[icon,jtel] + dtn[icon,jtel]*1.d-3) * sin(lat/!radeg)
+    posx(icon,jtel) = (tu[icon,jtel] + dtu[icon,jtel]*1.d-3) * cos(lat*!DPI/180.) $
+       - (tn[icon,jtel] + dtn[icon,jtel]*1.d-3) * sin(lat*!DPI/180.)
     posy(icon,jtel) = te[icon,jtel] + dte[icon,jtel]*1.d-3
-    posz(icon,jtel) = (tu[icon,jtel] + dtu[icon,jtel]*1.d-3) * sin(lat/!radeg) $
-       + (tn[icon,jtel] + dtn[icon,jtel]*1.d-3) * cos(lat/!radeg)
+    posz(icon,jtel) = (tu[icon,jtel] + dtu[icon,jtel]*1.d-3) * sin(lat*!DPI/180.) $
+       + (tn[icon,jtel] + dtn[icon,jtel]*1.d-3) * cos(lat*!DPI/180.)
 
 
 ; get telescope numbers for the FITS baseline id
@@ -5003,8 +5003,8 @@ for i = 0,nsources-1 do begin
         c.gq[ sp[psl[j[0]]].igq] ne ' ' )  then calcode[i] = 'A'
 
   iflux[i] = in[pil[j[0]]].sflux
-  raepo[i] = in[pil[j[0]]].rar * 180./!PI
-  decepo[i] = in[pil[j[0]]].decr * 180./!PI
+  raepo[i] = in[pil[j[0]]].rar * 180./!DPI
+  decepo[i] = in[pil[j[0]]].decr * 180./!DPI
   epoch[i] = in[pil[j[0]]].epoch
   lsrvel[i] = sp[psl[j[0]]].vel * 1.e3
   restfreq[i] = sp[psl[j[0]]].rfreq * 1.e9

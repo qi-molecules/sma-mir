@@ -6,6 +6,15 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+Apr. 2019
+add uti_respike.pro, which will use spike_read file to restore spikes at 
+                     given channel. 
+add uti_hayshft_fix.pro, which will fix the diurnal dopplerTracking error 
+                     found by Mark 
+modify idl2miriad.pro, uti_pos_fix.pro, fits_out.pro for !DPI double floats
+modify dbi_head2_read2.pro for additional warning message about wrong receiver
+                           header.
+
 Feb. 2019
 add uti_avgbandx.pro for testing, excludefreq keyword
 modify autofits to allow more sources output
