@@ -3,30 +3,8 @@ pro uti_hayshft_fix, reference=reference, raref=raref, decref=decref, flipsign=f
 common global
 common data_set
 
-if not (keyword_set(reference) or keyword_set(raref) or keyword_set(decref)) then begin 
-   print, 'Please use REFERENCE keyword to select the source '
-   print, '       on which original dopplerTrack was issued, e.g.'
-   print, "       IDL> uti_doppler_fix, reference='HH212'  "
-   print, '    or use RAREF and DECREF keyword to set the '
-   print, '       apparent RA and Dec (in radians) of the '
-   print, '       dopplerTracked source, e.g. '
-   print, '       IDL> uti_doppler_fix,raref=3.27054, decref=0.03498
-   print, '       which is tracking 3c273 on Feb 12, 2008.
-   print, 'Quit !'
-   return
-endif
-
-if n_elements(reference) gt 1 then begin
-   print, 'Reference source number must be one !'
-   print, 'Quit !'
-   return
-endif
-
 sign=-1.
 if keyword_set(flipsign) then sign=1.
-
-; reset vres 
-sp.vres=-1.*sp.fres/sp.fsky*!cvel/1e6
 
 ; Parameters
 SECONDS_PER_DAY=24.*60.*60.
@@ -51,27 +29,68 @@ mJD=uti_date2mjd(yr,mo,day)
 mjd2000=uti_date2mjd(2000,1,1)
 newepoch=2000.+(mJD-mjd2000)/365.
 
+datatime=mJD+in[pil[0]].dhrs/24.
+; load reference ra and dec from engineering table hayshft_lookup.txt
+; only available between 2011 April 4 to 2019 April 10
 
-if keyword_set(raref) then begin
-   if not keyword_set(decref) then begin
-      print, 'Please set DECREF keyword !'
+file=e.IDL_PRO+'sma/hayshft_lookup.txt'
+nlines=file_lines(file)
+temp=dblarr(4,nlines)
+openr, unit, file,/get_lun
+readf,unit,temp
+close, unit & free_lun,unit
+time1=reform(temp[0,*])
+time2=reform(temp[1,*])
+ratab=reform(temp[2,*])
+dectab=reform(temp[3,*])
+i=where(datatime ge time1 and datatime le time2, count)
+if count ge 1 then begin
+   reflag=1
+   refRA=ratab[i[0]]
+   refDec=dectab[i[0]]
+endif else reflag=0
+
+if not reflag then begin
+   if not (keyword_set(reference) or keyword_set(raref) or keyword_set(decref)) then begin 
+      print, 'Please use REFERENCE keyword to select the source '
+      print, '       on which original dopplerTrack was issued, e.g.'
+      print, "       IDL> uti_doppler_fix, reference='HH212'  "
+      print, '    or use RAREF and DECREF keyword to set the '
+      print, '       apparent RA and Dec (in radians) of the '
+      print, '       dopplerTracked source, e.g. '
+      print, '       IDL> uti_doppler_fix,raref=3.27054, decref=0.03498'
+      print, '       which is tracking 3c273 on Feb 12, 2008.'
       print, 'Quit !'
       return
    endif
-   refRA=raref
-   refDec=decref
-endif else begin
-   result=dat_list(s_l,'"source" eq "'+reference+'"',/no_notify,/reset)
-   if result gt 0 then begin
-      refRA=double(in[pil[0]].rar)
-      refDec=double(in[pil[0]].decr)
-      uti_precess,refRA,refDec,2000,newepoch,/radian
-   endif else begin
-      print, 'Reference source ',reference, ' not found !'
+
+   if n_elements(reference) gt 1 then begin
+      print, 'Reference source number must be one !'
       print, 'Quit !'
       return
+   endif
+
+   if keyword_set(raref) then begin
+      if not keyword_set(decref) then begin
+         print, 'Please set DECREF keyword !'
+         print, 'Quit !'
+         return
+      endif
+      refRA=raref
+      refDec=decref
+   endif else begin
+      result=dat_list(s_l,'"source" eq "'+reference+'"',/no_notify,/reset)
+      if result gt 0 then begin
+         refRA=double(in[pil[0]].rar)
+         refDec=double(in[pil[0]].decr)
+         uti_precess,refRA,refDec,2000,newepoch,/radian
+      endif else begin
+         print, 'Reference source ',reference, ' not found !'
+         print, 'Quit !'
+         return
+      endelse
    endelse
-endelse
+endif
 
 ; Fix starts...
 print, ''
