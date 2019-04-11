@@ -51,6 +51,9 @@ if count ge 1 then begin
 endif else reflag=0
 
 if not reflag then begin
+   print, '*** Please note this program is generally used to fix the data'
+   print, '***   taken between 2011 April 4th and 2019 April 10th.'
+   print, '*** If not, do at your own risk.'
    if not (keyword_set(reference) or keyword_set(raref) or keyword_set(decref)) then begin 
       print, 'Please use REFERENCE keyword to select the source '
       print, '       on which original dopplerTrack was issued, e.g.'
@@ -92,9 +95,10 @@ if not reflag then begin
    endelse
 endif
 
+
 ; Fix starts...
 print, ''
-print, 'Fix starts ...'
+print, '** Fix starts ...'
 print, ''
 
 result=dat_list(s_l,/reset,/no_notify)
@@ -116,7 +120,7 @@ ii=uti_distinct(in[pil].int,nint,/many_repeat)
 for i=0L,nint-1L do begin
    
    tmp_idx = where(ints eq ii[i], ncombo)
-   print,'Fixing integration ',ii[i], " which has ", ncombo, " combinations"
+;   print,'Fixing integration ',ii[i], " which has ", ncombo, " combinations"
 
    ut=in[pils[[tmp_idx[0]]]].dhrs
    ra=in[pils[[tmp_idx[0]]]].rar
@@ -143,7 +147,7 @@ for i=0L,nint-1L do begin
    sh_sma=globalRefRadius*2.*!DPI*cos(globalRefLat)*cos(refDec)*sin(haRad)/(24.*3600.)
 
    dv=sign*(sh_sma-sh_hay)/double(1000.)
-   print, 'Velocity shifted by ',dv, ' km/s'
+   print, 'velocity shifted by ',dv, ' km/s',' on scan #',ii[i]
    ; will convert to frequency shifted based on restfreq
    for j=0L,ncombo-1L do begin 
       nc=sp[psls[[tmp_idx[j]]]].nch
@@ -156,6 +160,10 @@ for i=0L,nint-1L do begin
       ch[pcls[[tmp_idx[j]]]:pcls[[tmp_idx[j]]]+nc-1]=data_out
    endfor
 endfor
+
+print, ''
+print, '** Fix done with '
+print, '** dopplerTracking RA ',refRA,' and Dec ',refDec
 
 
 result=dat_list(s_l,/reset)
