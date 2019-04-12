@@ -1,4 +1,4 @@
-pro uti_hayshft_fix, reference=reference, raref=raref, decref=decref, flipsign=flipsign
+pro uti_hayshft_fix, reference=reference, raref=raref, decref=decref, flipsign=flipsign, verbose=verbose
 
 common global
 common data_set
@@ -147,7 +147,7 @@ for i=0L,nint-1L do begin
    sh_sma=globalRefRadius*2.*!DPI*cos(globalRefLat)*cos(refDec)*sin(haRad)/(24.*3600.)
 
    dv=sign*(sh_sma-sh_hay)/double(1000.)
-   print, 'velocity shifted by ',dv, ' km/s',' on scan #',ii[i]
+   if keyword_set(verbose) then print, 'velocity shifted by ',dv, ' km/s',' on scan #',ii[i]
    ; will convert to frequency shifted based on restfreq
    for j=0L,ncombo-1L do begin 
       nc=sp[psls[[tmp_idx[j]]]].nch
