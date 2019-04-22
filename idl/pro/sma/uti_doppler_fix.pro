@@ -1,4 +1,4 @@
-pro uti_doppler_fix,reference=reference, source=source, raref=raref, decref=decref, diurnal=diurnal
+pro uti_doppler_fix,reference=reference, source=source, raref=raref, decref=decref, diurnal=diurnal, verbose=verbose
 
 common global
 common data_set
@@ -116,124 +116,134 @@ if not keyword_set(diurnal) then sladcs2c,refRA,refDec,refunitVector
 
 ; Fix starts...
 print, ''
-print, '** Fix starts ...'
+print, '** Velocity shift starts ...'
 print, ''
 
 result=dat_list(s_l,/reset,/no_notify)
 
-sbs=strupcase(c.sb(bl[pbl].isb))
-bands=strupcase(c.band(sp[psl].iband))
-recs=c.rec(bl(pbl).irec)
-bls=c.blcd(bl(pbl).iblcd)
-combinations=bls+' '+recs+' '+sbs+' '+bands
-distinct_combinations=uti_distinct(combinations,ncombinations,/many_repeat)
+distinct_source=uti_distinct(c.source[in[pil].isource],nsources,/many_repeat)
 
-ints = in[pil].int
-pcls = pcl
-pils = pil
-psls = psl
+for is=0L, nsources -1L do begin
+  result=dat_list(s_l,'"source" eq "'+distinct_source[is]+'"',/reset,/no_notify)
 
-ii=uti_distinct(in[pil].int,nint,/many_repeat)
+  sbs=strupcase(c.sb(bl[pbl].isb))
+  bands=strupcase(c.band(sp[psl].iband))
+  recs=c.rec(bl(pbl).irec)
+  bls=c.blcd(bl(pbl).iblcd)
+  combinations=bls+' '+recs+' '+sbs+' '+bands
+  distinct_combinations=uti_distinct(combinations,ncombinations,/many_repeat)
 
-i=0
-tmp_idx = where(ints eq ii[i], ncombo)
+  ints = in[pil].int
+  pcls = pcl
+  pils = pil
+  psls = psl
+
+  ii=uti_distinct(in[pil].int,nint,/many_repeat)
+
+  i=0
+  tmp_idx = where(ints eq ii[i], ncombo)
 ;print,'Fixing integration ',ii[i], " which has ", ncombo, " combinations"
-ut=in[pils[[tmp_idx[0]]]].dhrs
-ra=in[pils[[tmp_idx[0]]]].rar
-dec=in[pils[[tmp_idx[0]]]].decr
-uti_precess,ra,dec,2000,newepoch,/radian
-sladcs2c,ra,dec,unitVector
-if e.debug then print,ra,dec,' unitVector: ',unitVector
+  ut=in[pils[[tmp_idx[0]]]].dhrs
+  ra=in[pils[[tmp_idx[0]]]].rar
+  dec=in[pils[[tmp_idx[0]]]].decr
+  uti_precess,ra,dec,2000,newepoch,/radian
 
-if e.debug then print,'ut= ',ut
-uti_ut2lst,yr,mo,day,ut,lst,longitude=longitude
-if e.debug then print,'lst= ',lst
+  if (abs(ra-refRA)/refRA lt 2e-4) and (abs(dec-refDec)/refDec lt 2e-4) then goto, continue
 
-dayFraction=ut/24.
+  sladcs2c,ra,dec,unitVector
+  if e.debug then print,ra,dec,' unitVector: ',unitVector
+  if e.debug then print,'ut= ',ut
+  uti_ut2lst,yr,mo,day,ut,lst,longitude=longitude
+  if e.debug then print,'lst= ',lst
+
+  dayFraction=ut/24.
 ;;   print,'dayFraction: ',dayFraction
 ;ha=lst-refRA*180.d/!dpi/15.d
 ; calculate diurnal correction for source
-ha=lst-ra*180.d/!dpi/15.d
-haRad=ha*15.d*!dpi/180.d
-sidereal_rate=double(86400.)/double(86164.)
-dayFraction0=dayFraction-haRad/(sidereal_rate*2.d*!dpi)
+  ha=lst-ra*180.d/!dpi/15.d
+  haRad=ha*15.d*!dpi/180.d
+  sidereal_rate=double(86400.)/double(86164.)
+  dayFraction0=dayFraction-haRad/(sidereal_rate*2.d*!dpi)
 
-tTMinusUTC = slaDtt(mJD+dayFraction)/SECONDS_PER_DAY
-tTMinusUTC0 = slaDtt(mJD+dayFraction0)/SECONDS_PER_DAY
+  tTMinusUTC = slaDtt(mJD+dayFraction)/SECONDS_PER_DAY
+  tTMinusUTC0 = slaDtt(mJD+dayFraction0)/SECONDS_PER_DAY
 ;;   print,'tTMinusUTC = ',tTMinusUTC
-tT = mJD+dayFraction + tTMinusUTC
-tT0 = mJD+dayFraction0 + tTMinusUTC0
+  tT = mJD+dayFraction + tTMinusUTC
+  tT0 = mJD+dayFraction0 + tTMinusUTC0
 ;;   print,'tT: ',tT
-tDBMinusTT = slaRcc(mJD, dayFraction, globalRefLong, cos(globalRefLat)*globalRefRadius/M_PER_KM,sin(globalRefLat)*globalRefRadius/M_PER_KM)/SECONDS_PER_DAY
-tDBMinusTT0 = slaRcc(mJD, dayFraction0, globalRefLong, cos(globalRefLat)*globalRefRadius/M_PER_KM,sin(globalRefLat)*globalRefRadius/M_PER_KM)/SECONDS_PER_DAY
+  tDBMinusTT = slaRcc(mJD, dayFraction, globalRefLong, cos(globalRefLat)*globalRefRadius/M_PER_KM,sin(globalRefLat)*globalRefRadius/M_PER_KM)/SECONDS_PER_DAY
+  tDBMinusTT0 = slaRcc(mJD, dayFraction0, globalRefLong, cos(globalRefLat)*globalRefRadius/M_PER_KM,sin(globalRefLat)*globalRefRadius/M_PER_KM)/SECONDS_PER_DAY
 
 ;;   print,'tDBMinusTT: ',tDBMinusTT
-tDB = tT + tDBMinusTT 
-tDB0 = tT0 + tDBMinusTT0
+  tDB = tT + tDBMinusTT 
+  tDB0 = tT0 + tDBMinusTT0
 ;;   print,'tDB: ',tDB
 
 ; radial velocity in ref direction
-souvRad=uti_vrad(ra,dec,lst,tDB)
-if e.debug then print,'source radial velocity = ',souvRad
+  souvRad=uti_vrad(ra,dec,lst,tDB)
+  if e.debug then print,'source radial velocity = ',souvRad
 ;souvRad=souvRad*slaDvdv(unitVector,refunitVector)
 ;if e.debug then print,'source radial velocity in reference source direction: ',souvRad
-if keyword_set(diurnal) then refvRad=uti_vrad(ra,dec,ra*180.d/(15.d*!dpi),tDB0) else refvRad=uti_vrad(refRA,refDec,lst,tDB)
-if e.debug then print,'ref source radial velocity: ',refvRad
-fixVel=-1.*(souvRad-refvRad)/double(1000.)
+  if keyword_set(diurnal) then refvRad=uti_vrad(ra,dec,ra*180.d/(15.d*!dpi),tDB0) else refvRad=uti_vrad(refRA,refDec,lst,tDB)
+  if e.debug then print,'ref source radial velocity: ',refvRad
+  fixVel=-1.*(souvRad-refvRad)/double(1000.)
 ;   print,'Velocity shifted by ',fixVel, ' km/s'
-v0=fixVel
-sp[psl].vel=sp[psl].vel+v0
+  v0=fixVel
+  sp[psl].vel=sp[psl].vel+v0
 
-for i=1L,nint-1L do begin
+  for i=1L,nint-1L do begin
    
-   tmp_idx = where(ints eq ii[i], ncombo)
+     tmp_idx = where(ints eq ii[i], ncombo)
 ;   print,'Fixing integration ',ii[i], " which has ", ncombo, " combinations"
 
-   ut=in[pils[[tmp_idx[0]]]].dhrs
-   ra=in[pils[[tmp_idx[0]]]].rar
-   dec=in[pils[[tmp_idx[0]]]].decr
-   uti_precess,ra,dec,2000,newepoch,/radian
-   sladcs2c,ra,dec,unitVector
-   if e.debug then print,ra,dec,' unitVector: ',unitVector
+     ut=in[pils[[tmp_idx[0]]]].dhrs
+     ra=in[pils[[tmp_idx[0]]]].rar
+     dec=in[pils[[tmp_idx[0]]]].decr
+     uti_precess,ra,dec,2000,newepoch,/radian
+     sladcs2c,ra,dec,unitVector
+     if e.debug then print,ra,dec,' unitVector: ',unitVector
 
-   if e.debug then print,'ut= ',ut
-   uti_ut2lst,yr,mo,day,ut,lst,longitude=longitude
-   if e.debug then print,'lst= ',lst
+     if e.debug then print,'ut= ',ut
+     uti_ut2lst,yr,mo,day,ut,lst,longitude=longitude
+     if e.debug then print,'lst= ',lst
 
-   dayFraction=ut/24.
+     dayFraction=ut/24.
 ;;   print,'dayFraction: ',dayFraction
-   tTMinusUTC = slaDtt(mJD+dayFraction)/SECONDS_PER_DAY
+     tTMinusUTC = slaDtt(mJD+dayFraction)/SECONDS_PER_DAY
 ;;   print,'tTMinusUTC = ',tTMinusUTC
-   tT = mJD+dayFraction + tTMinusUTC
+     tT = mJD+dayFraction + tTMinusUTC
 ;;   print,'tT: ',tT
-   tDBMinusTT = slaRcc(mJD, dayFraction, globalRefLong, cos(globalRefLat)*globalRefRadius/M_PER_KM,sin(globalRefLat)*globalRefRadius/M_PER_KM)/SECONDS_PER_DAY
+     tDBMinusTT = slaRcc(mJD, dayFraction, globalRefLong, cos(globalRefLat)*globalRefRadius/M_PER_KM,sin(globalRefLat)*globalRefRadius/M_PER_KM)/SECONDS_PER_DAY
 ;;   print,'tDBMinusTT: ',tDBMinusTT
-   tDB = tT + tDBMinusTT 
+     tDB = tT + tDBMinusTT 
 ;;   print,'tDB: ',tDB
 
 ; radial velocity in ref direction
-   souvRad=uti_vrad(ra,dec,lst,tDB)
-   if e.debug then print,'source radial velocity = ',souvRad
+     souvRad=uti_vrad(ra,dec,lst,tDB)
+     if e.debug then print,'source radial velocity = ',souvRad
 ;   souvRad=souvRad*slaDvdv(unitVector,refunitVector)
 ;   if e.debug then print,'source radial velocity in reference source direction: ',souvRad
-   if not keyword_set(diurnal) then refvRad=uti_vrad(refRA,refDec,lst,tDB)
-   if e.debug then print,'ref source radial velocity: ',refvRad
-   fixVel=-1.*(souvRad-refvRad)/double(1000.)
-   print,'Velocity shifted by ',fixVel, ' km/s',' on scan #', ii[i]
-   dv=fixvel-v0
-   for j=0L,ncombo-1L do begin 
-      nc=sp[psls[[tmp_idx[j]]]].nch
-      vsh=dv/sp[psls[[tmp_idx[j]]]].vres
-      data_ch=ch[pcls[[tmp_idx[j]]]:pcls[[tmp_idx[j]]]+nc-1]
-      data_out=interpolate(data_ch,findgen(nc)-vsh, cubic=-0.5)
+     if not keyword_set(diurnal) then refvRad=uti_vrad(refRA,refDec,lst,tDB)
+     if e.debug then print,'ref source radial velocity: ',refvRad
+     fixVel=-1.*(souvRad-refvRad)/double(1000.)
+     if keyword_set(verbose) then print,distinct_source[is],' velocity shifted by ',fixVel, ' km/s',' on scan #', ii[i]
+     dv=fixvel-v0
+     for j=0L,ncombo-1L do begin 
+        nc=sp[psls[[tmp_idx[j]]]].nch
+        vsh=dv/sp[psls[[tmp_idx[j]]]].vres
+        data_ch=ch[pcls[[tmp_idx[j]]]:pcls[[tmp_idx[j]]]+nc-1]
+        data_out=interpolate(data_ch,findgen(nc)-vsh, cubic=-0.5)
 ;      data_out=shift_spectrum(data_ch,nc,vsh)
-      ch[pcls[[tmp_idx[j]]]:pcls[[tmp_idx[j]]]+nc-1]=data_out
-   endfor
-endfor
+        ch[pcls[[tmp_idx[j]]]:pcls[[tmp_idx[j]]]+nc-1]=data_out
+     endfor
+  endfor
+  continue: 
+endfor ; sources
+
 
 if not  keyword_set(diurnal) then begin
-   print, ''
-   print, '** Fix done with '
+     print, ''
+   print, '** Velocity shift done with '
    print, '** dopplerTracking RA ',refRA,' and Dec ',refDec
 endif else begin
    print, ''
