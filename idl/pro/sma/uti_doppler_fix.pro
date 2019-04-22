@@ -230,11 +230,11 @@ for is=0L, nsources -1L do begin
      dv=fixvel-v0
      for j=0L,ncombo-1L do begin 
         nc=sp[psls[[tmp_idx[j]]]].nch
-;        vsh=dv/sp[psls[[tmp_idx[j]]]].vres
-        fsh=-1.*dv*sp[psls[[tmp_idx[j]]]].rfreq*1e6/!cvel/sp[psls[[tmp_idx[j]]]].fres
+        vsh=dv/sp[psls[[tmp_idx[j]]]].vres
+;        fsh=-1.*dv*sp[psls[[tmp_idx[j]]]].rfreq*1e6/!cvel/sp[psls[[tmp_idx[j]]]].fres
         data_ch=ch[pcls[[tmp_idx[j]]]:pcls[[tmp_idx[j]]]+nc-1]
-        data_out=interpolate(data_ch,findgen(nc)-fsh, cubic=-0.5)
-;        data_out=interpolate(data_ch,findgen(nc)-vsh, cubic=-0.5)
+;        data_out=interpolate(data_ch,findgen(nc)-fsh, cubic=-0.5)
+        data_out=interpolate(data_ch,findgen(nc)-vsh, cubic=-0.5)
 ;        data_out=shift_spectrum(data_ch,nc,vsh)
         ch[pcls[[tmp_idx[j]]]:pcls[[tmp_idx[j]]]+nc-1]=data_out
      endfor
