@@ -6,28 +6,40 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+
 Jul. 2019
-fits_out.pro modified u,v,w calculation so they are based on continuum freq, 
+fits_out.pro (modified)
+-- u,v,w calculation based on continuum freq, 
              not chunk freq. Also a bug fixed for sideband selection.
 
-readdata.pro modified to do polarization correction
+readdata.pro (modified)
+-- added polarization correction
 
 
 Apr. 2019
-add uti_respike.pro, which will use spike_read file to restore spikes at 
-                     given channel. 
-add uti_hayshft_fix.pro, which will fix the diurnal dopplerTracking error 
+uti_respike.pro (added)
+-- use spike_read file to restore spikes at given channel. 
+
+uti_hayshft_fix.pro (added)
+-- fix the diurnal dopplerTracking error 
                      found by Mark 
-modify idl2miriad.pro, uti_pos_fix.pro, fits_out.pro for !DPI double floats
-modify dbi_head2_read2.pro for additional warning message about wrong receiver
+idl2miriad.pro, uti_pos_fix.pro, fits_out.pro (modified)
+-- !DPI double floats
+
+dbi_head2_read2.pro (modified) 
+-- additional warning message about wrong receiver
                            header.
 
 Feb. 2019
-add uti_avgbandx.pro for testing, excludefreq keyword
-modify autofits to allow more sources output
-modify uti_tsys_fix.pro for noninteractive tsys fixing
-modify uti_doppler_fix.pro, disabling fft correction, replace it
- with cubic convolution
+
+uti_avgbandx.pro (added)
+-- testing, excludefreq keyword
+
+autofits.pro, uti_tsys_fix.pro, uti_doppler_fix.pro (modified)
+-- autofits to allow more sources output
+-- uti_tsys_fix.pro for noninteractive tsys fixing
+-- uti_doppler_fix.pro, disabling fft correction, replace it 
+                    with cubic convolution
 
 Jan. 2019:
 uti_doppler_fix.pro  adding a line to fix vres 
