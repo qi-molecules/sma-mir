@@ -1,4 +1,4 @@
-pro readdata,directory=directory, newformat=newformat,int_read=int_read, skip=skip, full=full, sideband=sideband, rx=rx, band_read=band_read, old=old, if1=if1, if2=if2, if3=if3, if4=if4, asic=asic, swarm=swarm, swmavg=swmavg, windows=windows, defaults=defaults
+pro readdata,directory=directory, newformat=newformat,int_read=int_read, skip=skip, full=full, sideband=sideband, rx=rx, band_read=band_read, old=old, if1=if1, if2=if2, if3=if3, if4=if4, asic=asic, swarm=swarm, swmavg=swmavg, windows=windows, nopolcor=nopolcor, defaults=defaults
 ;yes
 ;=Task:READDATA --- To read data from specified directory
 ;#Type: i/o
@@ -281,6 +281,158 @@ if n_elements(c.ref_time) gt 1 then begin
    in[pif].dhrs=in[pif].dhrs+24.
    bl[pbf].avedhrs=bl[pbf].avedhrs+24.
    in[pif].iref_time=0
+endif
+
+; polarization correction checking
+
+res=dat_filter(s_f,'"wt" gt "0"',/reset,/no_notify)
+pols=uti_distinct(bl[pbf].ipol,npol,/many)
+if (not keyword_set(nopolcor)) and (npol eq 4) then begin
+; mJD
+   datobs=c.ref_time[in[pi[0]].iref_time]
+   months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+   mon=strmid(datobs,0,3)
+   j=where(mon eq months,count)
+   num_day_obs=[fix(strtrim(strmid(datobs,8,4),2)),fix(strtrim(string(j[0]+1),2)),(strtrim(strmid(datobs,4,2),2))]
+   day=strtrim(string(num_day_obs[2]),2)
+   yr =strtrim(string(num_day_obs[0]),2)
+   mo =strtrim(string(num_day_obs[1]),2)
+   mJD=uti_date2mjd(yr,mo,day)
+   ;print,'mjd: ', mjd
+   mjd2000=uti_date2mjd(2000,1,1)
+   newepoch=2000.+(mJD-mjd2000)/365.
+   datatime=mJD+in[pil[0]].dhrs/24.
+   ;print,'datatime: ',datatime
+   print,''
+   print,'*** Checking data fixing for dual-pol data ...'
+   datecor=[uti_date2mjd(2016,1,7),uti_date2mjd(2017,6,7),uti_date2mjd(2018,3,5),uti_date2mjd(2018,6,14),uti_date2mjd(2018,11,15),uti_date2mjd(2018,11,29)]
+   ;print,'datecor: '
+   ;print,datecor
+   loc=value_locate(datecor,datatime)
+   ;print,'loc: ',loc
+   case loc of
+      0: begin
+         ;
+         ; apply to polarization data taken from Oct 10th, 2016 up to and including June 6th, 2017
+         ; correct for missing '-' sign errors in dataCathcher, equivalent to a 90d error:
+         ; RxA-RxB LR, RR, should have added -90d, dataCathcher added 90, thus, correction is -180
+         select,/res,/pos,state=['LR','RR']
+         result=dat_filter(s_f,'("ant1rx" eq "0" and "ant2rx" eq "1")')
+         uti_phasechange,angle=-180
+         ; RxB-RxA LL, LR, should have added -90d, dataCathcher added 90, thus, correction is -180
+         select,/res,/pos,state=['LL','LR']
+         result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "0")')
+         uti_phasechange,angle=-180
+         select,/p,/re
+         uti_avgband
+         print,''
+         print,'*** Polarization data correction done based on polcor3.'
+      end
+      1: begin
+         ; implementing phase corrections corresponding to evec=45
+         ; when no online corrections are applied 
+         ;
+         ; RxA-RxB LL, RL, -90d
+         select,/res,/pos,state=['LL','RL']
+         result=dat_filter(s_f,'("ant1rx" eq "0" and "ant2rx" eq "1")')
+         uti_phasechange,angle=-90
+
+         ; RxA-RxB LR, RR, 90d
+         select,/res,/pos,state=['LR','RR']
+         result=dat_filter(s_f,'("ant1rx" eq "0" and "ant2rx" eq "1")')
+         uti_phasechange,angle=90
+
+         ; RxB-RxA LL, LR, 90d
+         select,/res,/pos,state=['LL','LR']
+         result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "0")')
+         uti_phasechange,angle=90
+
+         ; RxB-RxA RL, RR, -90
+         select,/res,/pos,state='RR'
+         result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "0")')
+         uti_phasechange,angle=-90
+
+         ; RxB-RxB LR, 180
+         select,/res,/pos,state='LR'
+         result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "1")')
+         uti_phasechange,angle=180
+
+         ; RxB-RxB RL, -180
+         select,/res,/pos,state='RL'
+         result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "1")')
+         uti_phasechange,angle=-180
+
+         select,/p,/re
+         uti_avgband
+         print,''
+         print,'*** Polarization data correction done based on polcor1.'
+      end
+      3: begin
+         ;Corrects L<->R labeling
+         c.pol[0:4]=['unknown','LL','LR','RL','RR']
+         select,state='LL',/re
+         i_ll=pbf
+         select,state='LR',/re
+         i_lr=pbf
+         select,state='RL',/re
+         i_rl=pbf
+         select,state='RR',/re
+         i_rr=pbf
+         bl[i_ll].ipol=4
+         bl[i_lr].ipol=3
+         bl[i_rl].ipol=2
+         bl[i_rr].ipol=1
+
+         ; Corrects incorrect angles applied
+         result=dat_filter(s_f,'("ant1rx" eq "0" and "ant2rx" eq "1") or ("ant1rx" eq "1" and "ant2rx" eq "0")',/reset)
+         result=dat_filter(s_f,'("ipol" eq "2") or ("ipol" eq "3")')
+         uti_phasechange,angle=180
+         select,/p,/re
+         uti_avgband
+         print,''
+         print,'*** Polarization data correction done based on polcor2.'
+      end
+      4: begin
+         ; implementing phase corrections corresponding to evec=45
+         ; when no online corrections are applied 
+         ;
+         ; RxA-RxB LL, RL, -90d
+         select,/res,/pos,state=['LL','RL']
+         result=dat_filter(s_f,'("ant1rx" eq "0" and "ant2rx" eq "1")')
+         uti_phasechange,angle=-90
+
+         ; RxA-RxB LR, RR, 90d
+         select,/res,/pos,state=['LR','RR']
+         result=dat_filter(s_f,'("ant1rx" eq "0" and "ant2rx" eq "1")')
+         uti_phasechange,angle=90
+
+         ; RxB-RxA LL, LR, 90d
+         select,/res,/pos,state=['LL','LR']
+         result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "0")')
+         uti_phasechange,angle=90
+
+         ; RxB-RxA RL, RR, -90
+         select,/res,/pos,state='RR'
+         result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "0")')
+         uti_phasechange,angle=-90
+
+         ; RxB-RxB LR, 180
+         select,/res,/pos,state='LR'
+         result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "1")')
+         uti_phasechange,angle=180
+
+         ; RxB-RxB RL, -180
+         select,/res,/pos,state='RL'
+         result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "1")')
+         uti_phasechange,angle=-180
+
+         select,/p,/re
+         uti_avgband
+         print,''
+         print,'*** Polarization data correction done based on polcor1.'
+      end
+      else: print, '*** No polarization data correction needed.'
+   endcase
 endif
 
 res=dat_filter(s_f,/reset,/no_notify)

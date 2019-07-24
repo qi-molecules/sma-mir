@@ -6,6 +6,13 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+Jul. 2019
+fits_out.pro modified u,v,w calculation so they are based on continuum freq, 
+             not chunk freq. Also a bug fixed for sideband selection.
+
+readdata.pro modified to do polarization correction
+
+
 Apr. 2019
 add uti_respike.pro, which will use spike_read file to restore spikes at 
                      given channel. 

@@ -4051,8 +4051,14 @@ case site of
 			instrument = 'SMA'
 			diameter = 6.0
 			lat = 19.82420526391d0 ; Pad #1
-                        result=dat_list(s_l,'"band" eq "c1"',/reset,/no_notify)
-                        fc1=sp[psl[0]].fsky*1.d9
+                        result=dat_list(s_l,'("band" eq "c1") and ("sb" eq "'+strtrim(sb[0],2)+'")',/reset,/no_notify)
+                        if result gt 0 then begin
+                           fc1=sp[psl[0]].fsky*1.d9
+                        endif else begin
+                           print,'Should include continuum band in the data selection command !'
+                           print,'No data output. Quit !'
+                           return,-1
+                        endelse
 		   end
 	else:	   begin
                      print,'dont know which telescope, ovromma or saosma'
@@ -4521,13 +4527,13 @@ result=fits_wdble('CROTA7',0.0,' ')
 ;
 ;
 result=fits_wstr ('PTYPE1','UU---SIN','baseline u projection, seconds')
-result=fits_wdble('PSCAL1',float(uvwscl/freq[0]),' ')
+result=fits_wdble('PSCAL1',float(uvwscl/fc1),' ')
 result=fits_wdble('PZERO1',0.0,' ')
 result=fits_wstr ('PTYPE2','VV---SIN','baseline v projection, seconds')
-result=fits_wdble('PSCAL2',float(uvwscl/freq[0]),' ')
+result=fits_wdble('PSCAL2',float(uvwscl/fc1),' ')
 result=fits_wdble('PZERO2',0.0,' ')
 result=fits_wstr ('PTYPE3','WW---SIN','baseline w projection, seconds')
-result=fits_wdble('PSCAL3',float(uvwscl/freq[0]),' ')
+result=fits_wdble('PSCAL3',float(uvwscl/fc1),' ')
 result=fits_wdble('PZERO3',0.0,' ')
 result=fits_wstr ('PTYPE4','BASELINE','256*ANT1 + ANT2 + (array-1)/100')
 result=fits_wdble('PSCAL4',0.01,' ')
