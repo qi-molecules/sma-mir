@@ -318,11 +318,11 @@ if (not keyword_set(nopolcor)) and (npol eq 4) then begin
          ; RxA-RxB LR, RR, should have added -90d, dataCathcher added 90, thus, correction is -180
          select,/res,/pos,state=['LR','RR']
          result=dat_filter(s_f,'("ant1rx" eq "0" and "ant2rx" eq "1")')
-         uti_phasechange,angle=-180
+         if result gt 0 then uti_phasechange,angle=-180
          ; RxB-RxA LL, LR, should have added -90d, dataCathcher added 90, thus, correction is -180
          select,/res,/pos,state=['LL','LR']
          result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "0")')
-         uti_phasechange,angle=-180
+         if result gt 0 then uti_phasechange,angle=-180
          select,/p,/re
          uti_avgband
          print,''
@@ -335,32 +335,32 @@ if (not keyword_set(nopolcor)) and (npol eq 4) then begin
          ; RxA-RxB LL, RL, -90d
          select,/res,/pos,state=['LL','RL']
          result=dat_filter(s_f,'("ant1rx" eq "0" and "ant2rx" eq "1")')
-         uti_phasechange,angle=-90
+         if result gt 0 then uti_phasechange,angle=-90
 
          ; RxA-RxB LR, RR, 90d
          select,/res,/pos,state=['LR','RR']
          result=dat_filter(s_f,'("ant1rx" eq "0" and "ant2rx" eq "1")')
-         uti_phasechange,angle=90
+         if result gt 0 then uti_phasechange,angle=90
 
          ; RxB-RxA LL, LR, 90d
          select,/res,/pos,state=['LL','LR']
          result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "0")')
-         uti_phasechange,angle=90
+         if result gt 0 then uti_phasechange,angle=90
 
          ; RxB-RxA RL, RR, -90
-         select,/res,/pos,state='RR'
+         select,/res,/pos,state=['RL','RR']
          result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "0")')
-         uti_phasechange,angle=-90
+         if result gt 0 then uti_phasechange,angle=-90
 
          ; RxB-RxB LR, 180
          select,/res,/pos,state='LR'
          result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "1")')
-         uti_phasechange,angle=180
+         if result gt 0 then uti_phasechange,angle=180
 
          ; RxB-RxB RL, -180
          select,/res,/pos,state='RL'
          result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "1")')
-         uti_phasechange,angle=-180
+         if result gt 0 then uti_phasechange,angle=-180
 
          select,/p,/re
          uti_avgband
@@ -386,7 +386,7 @@ if (not keyword_set(nopolcor)) and (npol eq 4) then begin
          ; Corrects incorrect angles applied
          result=dat_filter(s_f,'("ant1rx" eq "0" and "ant2rx" eq "1") or ("ant1rx" eq "1" and "ant2rx" eq "0")',/reset)
          result=dat_filter(s_f,'("ipol" eq "2") or ("ipol" eq "3")')
-         uti_phasechange,angle=180
+         if result gt 0 then uti_phasechange,angle=180
          select,/p,/re
          uti_avgband
          print,''
@@ -399,32 +399,32 @@ if (not keyword_set(nopolcor)) and (npol eq 4) then begin
          ; RxA-RxB LL, RL, -90d
          select,/res,/pos,state=['LL','RL']
          result=dat_filter(s_f,'("ant1rx" eq "0" and "ant2rx" eq "1")')
-         uti_phasechange,angle=-90
+         if result gt 0 then uti_phasechange,angle=-90
 
          ; RxA-RxB LR, RR, 90d
          select,/res,/pos,state=['LR','RR']
          result=dat_filter(s_f,'("ant1rx" eq "0" and "ant2rx" eq "1")')
-         uti_phasechange,angle=90
+         if result gt 0 then uti_phasechange,angle=90
 
          ; RxB-RxA LL, LR, 90d
          select,/res,/pos,state=['LL','LR']
          result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "0")')
-         uti_phasechange,angle=90
+         if result gt 0 then uti_phasechange,angle=90
 
          ; RxB-RxA RL, RR, -90
-         select,/res,/pos,state='RR'
+         select,/res,/pos,state=['RL','RR']
          result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "0")')
-         uti_phasechange,angle=-90
+         if result gt 0 then uti_phasechange,angle=-90
 
          ; RxB-RxB LR, 180
          select,/res,/pos,state='LR'
          result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "1")')
-         uti_phasechange,angle=180
+         if result gt 0 then uti_phasechange,angle=180
 
          ; RxB-RxB RL, -180
          select,/res,/pos,state='RL'
          result=dat_filter(s_f,'("ant1rx" eq "1" and "ant2rx" eq "1")')
-         uti_phasechange,angle=-180
+         if result gt 0 then uti_phasechange,angle=-180
 
          select,/p,/re
          uti_avgband
@@ -433,6 +433,10 @@ if (not keyword_set(nopolcor)) and (npol eq 4) then begin
       end
       else: print, '*** No polarization data correction needed.'
    endcase
+   if (not keyword_set(nopolcor)) and (npol eq 4) and (loc ge 0  and loc le 4) then begin
+       print, 'Polarization correction was applied to this data based on the date of the observation. If you do not wish for the corrections to be applied, please re-run readdata with option nopolcor'
+       print, 'For example: IDL> readdata,dir='''+directory+''',/nopolcor'
+   endif
 endif
 
 res=dat_filter(s_f,/reset,/no_notify)

@@ -7,6 +7,11 @@ https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
 
+Aug. 2019
+
+readdata.pro (modified)
+-- polarization correction debugged
+
 Jul. 2019
 
 fits_out.pro (modified)
