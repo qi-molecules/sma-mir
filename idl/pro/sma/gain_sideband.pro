@@ -2,7 +2,7 @@ function gain_sideband,gai_souids,gai_fluxes_3mm,gai_fluxes_1mm,tel_bsl, $
          x_var, y_vars,frames_per_page,dt_smooth=dt_smooth,plid, $
          refant=refant, loose=loose, connect=connect, preavg=preavg, $
          no_unwrap=no_unwrap,non_point=non_point, multicolor=multicolor, $
-         polar=polar, sideband=sideband, yfs=yfs, xfs=xfs
+         polar=polar, sideband=sideband, yfs=yfs, xfs=xfs, casaflux=casaflux
 ;
 ; Gain derivation for amp and phase with interactive fitting.
 ;
@@ -65,6 +65,17 @@ common plo
 ;
 factors=[0.5,0.75,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.5]
 ;
+
+; mJD
+datobs=c.ref_time[in[pi[0]].iref_time]
+months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+mon=strmid(datobs,0,3)
+j=where(mon eq months,count)
+num_day_obs=[fix(strtrim(strmid(datobs,8,4),2)),fix(strtrim(string(j[0]+1),2)),(strtrim(strmid(datobs,4,2),2))]
+day=strtrim(string(num_day_obs[2]),2)
+yr =strtrim(string(num_day_obs[0]),2)
+mo =strtrim(string(num_day_obs[1]),2)
+mJD=uti_date2mjd(yr,mo,day)
 
 ; a quick check on input parameters
 
@@ -401,9 +412,11 @@ for j=0,n_elements(gai_souids)-1 do begin
     kkk=where(in[pil].souid eq gai_souids[j])
     if ((non_point gt 0.) and (in[pil[kkk[0]]].size gt 0.)) then begin
       uvdis=sqrt(bl[pbl].u^2 + bl[pbl].v^2)
-      radius = in[pil].size / 2.0 
-      freq   = sp[psl].fsky    
-      res = flux_primary(c.source[gai_souids[j]],radius,freq,xflux)
+      radius = in[pil].size / 2.0
+      bw     = sp[psl].fres 
+      freq   = sp[psl].fsky
+      datatime = mJD+in[pil].dhrs/24.
+      if keyword_set(casaflux) then res=flux_casa(strlowcase(c.source[gai_souids[j]]),radius,freq,bw,datatime,xflux) else res = flux_primary(strlowcase(c.source[gai_souids[j]]),radius,freq,xflux)
 ;      kkk=where(in[pil].souid eq gai_souids[j])
       result=uti_gaussqs(uvdis(kkk),radius(kkk),freq(kkk),vis)
       if res lt 0. then begin

@@ -38,7 +38,7 @@ common plo
 
 if keyword_set(channel) eq 0 then channel='c1'
 if keyword_set(day_range) eq 0 then day_range=30
-result =  sma_flux_cal_ini(channel,day_range,names=names,flags=flags,amp=amp,flux=flux,nscans=nscans)
+result =  sma_flux_cal_ini(channel,day_range,names=names,flags=flags,amp=amp,flux=flux,nscans=nscans, _extra=extra_keywords)
 
 sngc=''
 print, 'Enter flux calibrator source, and if needed, flux in Jy, eg: 3c279 18.1'

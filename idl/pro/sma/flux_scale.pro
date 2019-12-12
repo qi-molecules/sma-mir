@@ -4,7 +4,7 @@ function flux_scale,sources,channel,flux_inp=flux_inp,$
          wts=wts,sb=sb,iscan=iscan,bsl=bsl,vis=vis,tssb=tssb,$
          coh=coh,el=el,jct_bsl=jct_bsl,distinct_bsl=distinct_bsl,$
          distinct_sb=distinct_sb,scale_bsl=scale_bsl,jct_sig=jct_sig,$
-         noprint=noprint,good_frames=good_frames,polar=polar
+         noprint=noprint,good_frames=good_frames,polar=polar,casaflux=casaflux
 ;
 ; Flux calibration (contact Charlie Qi cqi@cfa.harvard.edu for bugs)
 ; 
@@ -22,6 +22,17 @@ function flux_scale,sources,channel,flux_inp=flux_inp,$
     ; Command blocks
       common global
       common data_set
+
+    ; mJD
+      datobs=c.ref_time[in[pi[0]].iref_time]
+      months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+      mon=strmid(datobs,0,3)
+      j=where(mon eq months,count)
+      num_day_obs=[fix(strtrim(strmid(datobs,8,4),2)),fix(strtrim(string(j[0]+1),2)),(strtrim(strmid(datobs,4,2),2))]
+      day=strtrim(string(num_day_obs[2]),2)
+      yr =strtrim(string(num_day_obs[0]),2)
+      mo =strtrim(string(num_day_obs[1]),2)
+      mJD=uti_date2mjd(yr,mo,day)
 
     ; Must be some sources
       nsources = n_elements(sources)
@@ -111,12 +122,14 @@ function flux_scale,sources,channel,flux_inp=flux_inp,$
     ; then re-determine the flux. Otherwise, just adopt the input flux.
       radius = in[pil].size / 2.0
       freq   = sp[psl].fsky
+      bw     = sp[psl].fres
+      datatime = mJD+in[pil].dhrs/24.
       flux   = fltarr(ndata)
       for i = 0L, n_elements(sources)-1L do begin
          j = where(source_out eq sources[i],nj)
          if (nj gt 0) then begin
            if (not keyword_set(flux_inp)) then begin
-             result = flux_primary(strlowcase(sources[i]),radius[j],freq[j],xflux)
+             if keyword_set(casaflux) then result = flux_casa(strlowcase(sources[i]),radius[j],freq[j],bw[j],datatime[j],xflux) else result = flux_primary(strlowcase(sources[i]),radius[j],freq[j],xflux)
              if (result eq 1) then begin
                 flux[j] = xflux
              endif else begin

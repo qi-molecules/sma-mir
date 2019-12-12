@@ -1,8 +1,20 @@
 function sma_flux_cal_ini,channel,day_range,user_id,$
-            names=names,flags=flags,amp=amp,flux=flux,nscans=nscans
+            names=names,flags=flags,amp=amp,flux=flux,nscans=nscans,$
+            casaflux=casaflux
     ; Command blocks
       common global
       common data_set
+
+    ; mJD
+      datobs=c.ref_time[in[pi[0]].iref_time]
+      months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+      mon=strmid(datobs,0,3)
+      j=where(mon eq months,count)
+      num_day_obs=[fix(strtrim(strmid(datobs,8,4),2)),fix(strtrim(string(j[0]+1),2)),(strtrim(strmid(datobs,4,2),2))]
+      day=strtrim(string(num_day_obs[2]),2)
+      yr =strtrim(string(num_day_obs[0]),2)
+      mo =strtrim(string(num_day_obs[1]),2)
+      mJD=uti_date2mjd(yr,mo,day)
 
     ; Initialize 
       flux = 0.0
@@ -59,6 +71,7 @@ function sma_flux_cal_ini,channel,day_range,user_id,$
     ; Make list of distinct source IDs in filter
       distinct_isource = uti_distinct(s.isource,many=0,nsources)
       sources  = c.source[distinct_isource]
+      sources  = strlowcase(sources)
 
     ; Determine average frequency of the observations. For primary calibrators,
     ; the frequency dependence is done rigorously in flux_cal.pro. For
@@ -94,8 +107,10 @@ function sma_flux_cal_ini,channel,day_range,user_id,$
                 read,aa,prompt='Enter diameter size here: '
                 in[pil[j]].size=float(aa)
                 radius=0.5*float(aa)
-              endif
-              result=flux_primary(strlowcase(sources[i]),radius,freq,xflux)
+             endif
+             bw = sp[psl].fres
+             datatime = mJD+in[pil].dhrs/24.
+             if keyword_set(casaflux) then result=flux_casa(strlowcase(sources[i]),radius,freq,bw,datatime,xflux)  else result=flux_primary(strlowcase(sources[i]),radius,freq,xflux)
             endif else begin
               result = flux_secondary(sources[i],user,radius,freq,$
                                       xflux,ut_start,ut_stop)

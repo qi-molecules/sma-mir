@@ -85,7 +85,7 @@ endelse
 
 endelse
 
-if tag_exist(in,'inhdbl6') ne 0 then begin
+if tag_exist(in,'conid') eq 0 then begin
    msfile=e.idl_sav+'ms_newformat.save'
    print,'Restored new data format data set ',filename
 endif else begin

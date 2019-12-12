@@ -343,20 +343,32 @@ c = { $
 
 endif else begin
 
-c = { $
-     ut:strarr(nctags[0]), $
-     ref_time:strarr(nctags[1]), $
-     sb:strarr(ncodes[0,2]),pol:strarr(ncodes[0,3]),$
-     rec:strarr(ncodes[0,4]),tel1:strarr(nctags[5]),$
-     tel2:strarr(nctags[6]),blcd:strarr(nctags[7]),$
-     gq:strarr(ncodes[0,8]),pq:strarr(ncodes[0,9]),$
-     band:strarr(ncodes[0,10]),pstate:strarr(ncodes[0,11]),$
-     source:strarr(nctags[12]),vrad:strarr(ncodes[0,13]),$
-     ra:strarr(nctags[14]),dec:strarr(nctags[15]),$
-     icode_s:strarr(ncodes[0,16]),icode_tag:strarr(ncodes[0,17])}
-    
-     ichange=[0,1,5,6,7,12,14,15]
-
+   if tag_exist(c,'filever') then begin
+      c = { $
+          ut:strarr(nctags[0]), $
+          ref_time:strarr(nctags[1]), $
+          sb:strarr(ncodes[0,2]),pol:strarr(ncodes[0,3]),$
+          rec:strarr(ncodes[0,4]),tel1:strarr(nctags[5]),$
+          tel2:strarr(nctags[6]),blcd:strarr(nctags[7]),$
+          gq:strarr(ncodes[0,8]),pq:strarr(ncodes[0,9]),$
+          band:strarr(ncodes[0,10]),pstate:strarr(ncodes[0,11]),$
+          source:strarr(nctags[12]),vrad:strarr(ncodes[0,13]),$
+          ra:strarr(nctags[14]),dec:strarr(nctags[15]),filever:strarr(nctags[16]),$
+          icode_s:strarr(ncodes[0,17]),icode_tag:strarr(ncodes[0,18])}
+   endif else begin
+      c = { $
+          ut:strarr(nctags[0]), $
+          ref_time:strarr(nctags[1]), $
+          sb:strarr(ncodes[0,2]),pol:strarr(ncodes[0,3]),$
+          rec:strarr(ncodes[0,4]),tel1:strarr(nctags[5]),$
+          tel2:strarr(nctags[6]),blcd:strarr(nctags[7]),$
+          gq:strarr(ncodes[0,8]),pq:strarr(ncodes[0,9]),$
+          band:strarr(ncodes[0,10]),pstate:strarr(ncodes[0,11]),$
+          source:strarr(nctags[12]),vrad:strarr(ncodes[0,13]),$
+          ra:strarr(nctags[14]),dec:strarr(nctags[15]),$
+          icode_s:strarr(ncodes[0,16]),icode_tag:strarr(ncodes[0,17])}
+   endelse 
+   ichange=[0,1,5,6,7,12,14,15]
 endelse
 
 k = 0

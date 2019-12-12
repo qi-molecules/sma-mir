@@ -105,17 +105,20 @@ else $
   preavg=preavg, no_unwrap=no_unwrap, non_point=non_point, $
   _extra=extra_keywords)
 
-aa = ''
-read,aa,prompt='Apply gain solution? [NO <YES>]:  '
-if (aa eq 'YES' or aa eq 'yes' or aa eq 'Yes' or aa eq 'Y' or aa eq 'y') then begin
-   print,'YES: apply gains'
-   print,'Applying Gains'
-   result=cal_apply(gain=cal_type,x_var=x_var,tel_bsl=tel_bsl,refant=refant)
+if not keyword_set(defaults) then begin
+   aa = ''
+   read,aa,prompt='Apply gain solution? [NO <YES>]:  '
+   if (aa eq 'YES' or aa eq 'yes' or aa eq 'Yes' or aa eq 'Y' or aa eq 'y') then begin
+      print,'YES: apply gains'
+      print,'Applying Gains'
+      result=cal_apply(gain=cal_type,x_var=x_var,tel_bsl=tel_bsl,refant=refant)
+   endif else begin
+      print,'NO: nothing done'
+   endelse   
 endif else begin
-   print,'NO: nothing done'
-endelse   
-
-print, 'Done!'
+   print,'Applying Gains'
+   result=cal_apply(gain=cal_type,x_var=x_var,tel_bsl=tel_bsl,refant=refant)   
+endelse
 print, ''
 
 switch_wvp:
@@ -146,15 +149,22 @@ else $
   preavg=preavg, no_unwrap=no_unwrap, non_point=non_point, $
   _extra=extra_keywords)
 
-aa = ''
-read,aa,prompt='Apply gain solution? [NO <YES>]:  '
-if (aa eq 'YES' or aa eq 'yes' or aa eq 'Yes' or aa eq 'Y' or aa eq 'y') then begin
-   print,'YES: apply gains'
-   print,'Applying Gains'
-   result=cal_apply(gain=cal_type,x_var=x_var,tel_bsl=tel_bsl,refant=refant)
+
+if not keyword_set(defaults) then begin
+   aa = ''
+   read,aa,prompt='Apply gain solution? [NO <YES>]:  '
+   if (aa eq 'YES' or aa eq 'yes' or aa eq 'Yes' or aa eq 'Y' or aa eq 'y') then begin
+      print,'YES: apply gains'
+      print,'Applying Gains'
+      result=cal_apply(gain=cal_type,x_var=x_var,tel_bsl=tel_bsl,refant=refant)
+   endif else begin
+      print,'NO: nothing done'
+   endelse   
+
 endif else begin
-   print,'NO: nothing done'
-endelse   
+   print,'Applying Gains'
+   result=cal_apply(gain=cal_type,x_var=x_var,tel_bsl=tel_bsl,refant=refant)   
+endelse
 
 print, 'Done!'
 print, '************************************************'

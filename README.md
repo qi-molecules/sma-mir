@@ -6,6 +6,33 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+Dec. 2019: MIR v2 release 
+
+SolarSystemModels (directory added from CASA 5.6.0 flux models)
+flux_casa.pro  (added)
+gain.pro, sma_flux_cal.pro, gain_sideband.pro, sma_flux_cal_ini.pro (modified)
+-- CASA flux model added
+
+plo_spec.pro (modified)
+-- non-interactive 
+
+flag.pro (modified)
+-- added flagging option 'noallpols' in 'flag' routine to allow 
+   better data output by flagging the scans without all four 
+   polarization states.
+
+uti_uvw_fix.pro (modified)
+-- use apparent dec for uvw recalculation.
+
+readdata.pro, mir_restore.pro, dbi_head2_read2.pro, dbi_chan2_read2.pro, 
+    dat_merge_sma.pro (modified)
+-- mir v2 change including flag marking (-32768), new header 'filever'
+
+apply_tsys.pro (modified)
+-- updated the normalization factor change due to mir v2 data change
+
+dbi_chan2_read2int.pro (modified)
+-- fixed a bug.
 
 Aug. 2019
 

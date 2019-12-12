@@ -197,38 +197,70 @@ for i=0, nants-1 do begin
    if count eq 0 then uti_addhdr,ant=realants[i]
 endfor
 
-;if not iblfix then begin
-   lat=19.82420526391d/57.29577951
-   m1=[[-sin(lat),0,cos(lat)],[0,1,0],[cos(lat),0,sin(lat)]]
-   bls=uti_distinct(c.blcd(bl[pbf].iblcd),nbls,/many_repeat)
-   bflag=0
-   list=""
-   for i=0,nbls-1 do begin
-      result=dat_filter(s_f,'"wt" gt "0" and "blcd" eq "'+bls[i]+'"',/no_notify,/reset)
-      h=in[pif[0]].ha*15.d*!dpi/180.d
-      dec=in[pif[0]].decr
-      m2=[[sin(h),cos(h),0],[-sin(dec)*cos(h),sin(dec)*sin(h),cos(dec)],$
-        [cos(dec)*cos(h),-cos(dec)*sin(h),sin(dec)]]
-      neu=[bl[pbf[0]].bln,bl[pbf[0]].ble,bl[pbf[0]].blu]
-      neu=transpose(neu)
-      klam=1000.d*0.299792458d/sp[psf[0]].fsky
-      uvw=reform(m2##m1##neu)/klam
-      if ( (abs(bl[pbf[0]].u-uvw[0])/uvw[0] gt 0.1) or (abs(bl[pbf[0]].v-uvw[1])/uvw[1] gt 0.1) or (abs(bl[pbf[0]].w-uvw[2])/uvw[2] gt 0.1) ) then begin
-         bflag=1
-         list=[list,bls[i]]
-         print,'UVW coords for '+bls[i]+' will be fixed !'
-      endif
-   endfor
-   if bflag then begin
-      list=list[1:n_elements(list)-1]
-      select,baseline=list,/reset
-      uti_uvw_fix
-   endif
-;endif
+
+
+lat=double(19.82420526391d*!dpi/180.d)
+m1=[[-sin(lat),0,cos(lat)],[0,1,0],[cos(lat),0,sin(lat)]]
 
 res=dat_filter(s_f,'"wt" gt "0"',/reset,/no_notify)
+distinct_bls=uti_distinct(c.blcd[bl[pbf].iblcd],nbls,/many_repeat)
+distinct_recs=uti_distinct(c.rec[bl[pbf].irec],nrecs,/many_repeat)
+distinct_sbs=uti_distinct(strupcase(c.sb[bl[pbf].isb]),nsbs,/many_repeat)
+ii=uti_distinct(in[pif].int,nint,/many_repeat)
+a0=pif & a1=pbf & a2=psf
+for i=0, nbls-1 do begin
+   blcd=distinct_bls[i]
+   ibl=min(where(c.blcd eq blcd))
+;   print,'baseline:',blcd
+   for j=0, nrecs-1 do begin
+      rec=distinct_recs[j]
+      irx=min(where(c.rec eq rec))
+;      print,'receiver:',rec
+      for k=0, nsbs-1 do begin
+         sb=distinct_sbs[k]
+         isbd=min(where(c.sb eq strlowcase(sb)))
+;         print,'sideband:',sb
+         n=where( (bl[a1].irec eq irx) and (bl[a1].isb eq isbd) and (bl[a1].iblcd eq ibl), count)
+         if count gt 0 then begin
+            b0=a0[n] & b1=a1[n] & b2=a2[n]
+            h=in[b0[0]].ha*15.d*!dpi/180.d
+            dec=in[b0[0]].decr
+            m2=[[sin(h),cos(h),0],[-sin(dec)*cos(h),sin(dec)*sin(h),cos(dec)],$
+                [cos(dec)*cos(h),-cos(dec)*sin(h),sin(dec)]]
+            neu=[bl[b1[0]].bln,bl[b1[0]].ble,bl[b1[0]].blu]
+            neu=transpose(neu)
+            klam=1000.d*0.299792458d/sp[b2[0]].fsky
+            uvw=reform(m2##m1##neu)/klam
+            if ( (abs(bl[b1[0]].u-uvw[0]) gt 0.1) or (abs(bl[b1[0]].v-uvw[1]) gt 0.1) or (abs(bl[b1[0]].w-uvw[2]) gt 0.1) ) then begin
+               print,'Check UVW coords for baseline: ',blcd,', receiver: ',rec,', sideband: ',sb 
+;               for m =0L, nint-1L do begin
+;                  n=where( in[b0].int eq ii[m], count)
+;                  if count eq 0 then goto, jump2
+;                  c0=b0[n] & c1=b1[n] & c2=b2[n]
+;                  h=in[c0[0]].ha*15.d*!dpi/180.d
+;                  dec=in[c0[0]].decr
+;                  m2=[[sin(h),cos(h),0],[-sin(dec)*cos(h),sin(dec)*sin(h),cos(dec)],$
+;                      [cos(dec)*cos(h),-cos(dec)*sin(h),sin(dec)]]
+;                  neu=[bl[c1[0]].bln,bl[c1[0]].ble,bl[c1[0]].blu]
+;                  neu=transpose(neu)
+;                  klam=1000.d*0.299792458d/sp[c2[0]].fsky
+;                  uvw=reform(m2##m1##neu)/klam
+;                  bl[c1].u=uvw[0]
+;                  bl[c1].v=uvw[1]
+;                  bl[c1].w=uvw[2]
+;                  bl[c1].prbl=sqrt(bl[c1].u*bl[c1].u+bl[c1].v*bl[c1].v)
+;                  jump2: 
+;               endfor           ; integration
+            endif
+         endif 
+      endfor                    ; sbs
+   endfor                       ; recs
+endfor                          ; baselines 
 
-distinct_recs=uti_distinct(bl[pbf].irec,nrecs,/many_repeat)
+
+;res=dat_filter(s_f,'"wt" gt "0"',/reset,/no_notify)
+
+;distinct_recs=uti_distinct(bl[pbf].irec,nrecs,/many_repeat)
 
 if nrecs gt 1 then begin
    sint0=strcompress(string(in[pif[0]].int),/remove)

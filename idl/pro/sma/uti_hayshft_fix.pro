@@ -163,7 +163,7 @@ endfor
 
 print, ''
 print, '** Fix done with '
-print, '** dopplerTracking RA ',refRA,' and Dec ',refDec
+print, '** dopplerTracking RA ',refRA,' and Dec ',refDec,' in radians.'
 
 
 result=dat_list(s_l,/reset)

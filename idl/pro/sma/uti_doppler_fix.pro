@@ -246,7 +246,7 @@ endfor ; sources
 if not  keyword_set(diurnal) then begin
      print, ''
    print, '** Velocity shift done with '
-   print, '** dopplerTracking RA ',refRA,' and Dec ',refDec
+   print, '** dopplerTracking RA ',refRA,' and Dec ',refDec,' in radians.'
 endif else begin
    print, ''
    print, '** Diurnal fix done!'

@@ -220,6 +220,7 @@ trans = strarr(1)
 ut = strarr(1)
 vctype = strarr(1)
 vtype = strarr(1)
+filever= strarr(1)
 
 aa = bytarr(42)
 point_lun,unit,0L
@@ -281,7 +282,8 @@ for i=0L,(nrows-1L) do  begin
        'trans' : trans(code_temp.icode)=strtrim(code_temp.code,2L)
        'ut'   : ut(code_temp.icode)=strtrim(code_temp.code,2L)
        'vctype': vctype(code_temp.icode)=strtrim(code_temp.code,2L)          
-       'vtype' : vtype(code_temp.icode)=strtrim(code_temp.code,2L)          
+       'vtype' : vtype(code_temp.icode)=strtrim(code_temp.code,2L)
+       'filever': filever(code_temp.icode)=strtrim(code_temp.code,2L)          
        else : print,strtrim(code_temp.v_name,2L),' not recognized !'
   endcase         
 endfor
@@ -316,7 +318,7 @@ c = { $
      ut:ut,ref_time:ref_time,sb:sb,$
      pol:pol,rec:rec,tel1:tel1,tel2:tel2,blcd:blcd,$
      gq:gq,pq:pq,band:band,pstate:pstate,$
-     source:source,vrad:vrad,ra:ra,dec:dec,$
+     source:source,vrad:vrad,ra:ra,dec:dec,filever:filever,$
      icode_s:icode_s,icode_tag:icode_tag}
 
 if keyword_set(newwindows) then begin

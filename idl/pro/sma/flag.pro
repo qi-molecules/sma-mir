@@ -1,4 +1,4 @@
-pro flag,unity=unity,unflag=unflag,flag=flag,frst=frst,last=last,deficit=deficit
+pro flag,unity=unity,unflag=unflag,flag=flag,frst=frst,last=last,deficit=deficit, noallpols=noallpols
 ;yes
 ;=Task:FLAG --- To flag data
 ;#Type: utility 
@@ -137,5 +137,25 @@ endif else begin
  return
 endelse
 endif
+
+if keyword_set(noallpols) then begin
+   ints = in[pil].int
+   ibls = bl[pbl].iblcd
+   psls = psl
+   ii=uti_distinct(ints,nint,/many_repeat)
+   jj=uti_distinct(ibls,nbls,/many_repeat)
+   temp=uti_distinct(sp[psl].iband,nbands,/many_repeat)
+   temp=uti_distinct(bl[pbl].isb,nsbs,/many_repeat)
+   for i=0L,nint-1L do begin
+      for j=0,nbls-1L do begin
+         tmp_idx = where((ints eq ii[i]) and (ibls eq jj[j]), ncombo)
+         if ncombo ne 0 and ncombo ne 4*nbands*nsbs then begin
+            print,"Flagging integration #",strcompress(string(ii[i]),/remove), " Baseline ",c.blcd[jj[j]], " which doesn't have all 4 pol states."
+            sp[psls[tmp_idx]].wt=-1
+         endif
+      endfor
+   endfor
+endif
+
 
 end

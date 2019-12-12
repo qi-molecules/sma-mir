@@ -640,7 +640,7 @@ endfor ; bands
       spe[sindex].m_options='cspne'
       if not e.java then begin
         pl[plid].plot_interact=plo_control(plid,sindex)
-        if not pl[plid].plot_interact then goto, done
+        if not pl[plid].plot_interact then if pl[plid].plot_device eq 'ps' then goto, end_sources else goto, done
       endif else begin
         goto, done
       endelse

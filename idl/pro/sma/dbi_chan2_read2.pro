@@ -156,6 +156,15 @@ for j=0L,nread do begin
        nchs=newnchs
     endif else begin
        chtemp = ptr_scale*complex(data_sch.packdata[ptr],data_sch.packdata[ptr_i])
+              ; find out the spikes and use the neigbour points to replace them in v2
+       if fix(c.filever) ge 2 then begin
+         itmp=where(data_sch.packdata[ptr] eq -32768,count)
+         ndim=size(data_sch.packdata[ptr])
+         npack=ndim[1]
+         irow=itmp/npack
+         icol=itmp mod npack
+         for jtmp=0,count-1 do chtemp[icol[jtmp],irow[jtmp]]=(chtemp[icol[jtmp]-1L,irow[jtmp]]+chtemp[icol[jtmp]+1L, irow[jtmp]])/2.
+       endif
     endelse
     ch_npts=long64(total(nchs,/double))*nints_read
     chtemp=reform(chtemp,ch_npts)

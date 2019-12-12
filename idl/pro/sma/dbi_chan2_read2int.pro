@@ -86,7 +86,7 @@ for j=0L,nread-1 do begin
 
 ; in case no swarm bands exists for part of data
     if not (count mod (nbands-2)) then begin
-       print, 'No swarm data existed at integration ',j
+;       print, 'No swarm data existed at integration ',j
 ;       print,count
        avgflag=0
     endif else if keyword_set(nbins) then avgflag=1
