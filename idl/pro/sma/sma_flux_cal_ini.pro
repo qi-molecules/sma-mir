@@ -1,9 +1,19 @@
 function sma_flux_cal_ini,channel,day_range,user_id,$
             names=names,flags=flags,amp=amp,flux=flux,nscans=nscans,$
-            casaflux=casaflux
+            orig_flux=orig_flux
     ; Command blocks
       common global
       common data_set
+
+      if not keyword_set(orig_flux) then begin
+         print,''
+         print,'***PLEASE READ !'
+         print,'The default flux calibration models are now from CASA (Butler-JPL-Horizons 2012).'
+         print,"If you want to use the original flux models, type x to quit,"
+         print,"   then repeat the command with /orig keyword."
+         print,'***'
+         print,''
+      endif
 
     ; mJD
       datobs=c.ref_time[in[pi[0]].iref_time]
@@ -110,7 +120,7 @@ function sma_flux_cal_ini,channel,day_range,user_id,$
              endif
              bw = sp[psl].fres
              datatime = mJD+in[pil].dhrs/24.
-             if keyword_set(casaflux) then result=flux_casa(strlowcase(sources[i]),radius,freq,bw,datatime,xflux)  else result=flux_primary(strlowcase(sources[i]),radius,freq,xflux)
+             if keyword_set(orig_flux) then result=flux_primary(strlowcase(sources[i]),radius,freq,xflux) else result=flux_casa(strlowcase(sources[i]),radius,freq,bw,datatime,xflux)  
             endif else begin
               result = flux_secondary(sources[i],user,radius,freq,$
                                       xflux,ut_start,ut_stop)

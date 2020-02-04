@@ -5,7 +5,7 @@ function gain,gai_souids,gai_fluxes_3mm,gai_fluxes_1mm,tel_bsl, $
          polar=polar, rec=rec, line=line, $
          calsb=calsb,calband=calband, calbchan=calbchan, calechan=calechan,$
          noplot=noplot, wsmooth=wsmooth, ramp=ramp, polrx=polrx, difif=difif,$
-         casaflux=casaflux
+         orig_flux=orig_flux
 ;
 ; Gain derivation for amp and phase with interactive fitting.
 ;
@@ -461,7 +461,7 @@ for j=0,n_elements(gai_souids)-1 do begin
       bw     = sp[psl].fres
       freq   = sp[psl].fsky    
       datatime = mJD+in[pil].dhrs/24.
-      if keyword_set(casaflux) then res=flux_casa(strlowcase(c.source[gai_souids[j]]),radius,freq,bw,datatime,xflux) else res = flux_primary(strlowcase(c.source[gai_souids[j]]),radius,freq,xflux)
+      if keyword_set(orig_flux) then res = flux_primary(strlowcase(c.source[gai_souids[j]]),radius,freq,xflux) else res=flux_casa(strlowcase(c.source[gai_souids[j]]),radius,freq,bw,datatime,xflux) 
 ;      kkk=where(in[pil].souid eq gai_souids[j])
       result=uti_gaussqs(uvdis(kkk),radius(kkk),freq(kkk),vis)
       if res lt 0. then begin

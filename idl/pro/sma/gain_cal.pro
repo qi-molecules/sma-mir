@@ -346,7 +346,7 @@ endif else begin
 endelse
 
 result=gain_ini(30.,use,all_souids,all_sources,all_amps, $
-   numbs_3mm,numbs_1mm,fluxes_3mm,fluxes_1mm,defaults=defaults)
+   numbs_3mm,numbs_1mm,fluxes_3mm,fluxes_1mm,defaults=defaults,_extra=extra_keywords)
 if result eq 0 then begin
     print, 'Found no sources in dataset to be selected as gain calibrators'
     print, 'Quit !'

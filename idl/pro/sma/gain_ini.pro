@@ -1,5 +1,5 @@
 function gain_ini,delta_days,use,all_souids,all_sources,all_amps,numbs_3mm,numbs_1mm, $
-                fluxes_3mm,fluxes_1mm,defaults=defaults
+                fluxes_3mm,fluxes_1mm,defaults=defaults, orig_flux=orig_flux
 ;
 ; Outputs a list of source ids, names and their amplitudes for the gain window.
 ; Also get the fluxes these sources should have from the flux archive in the db
@@ -83,6 +83,17 @@ print,'The flux should be in Jy at the frequency of the observation'
    endfor
    sngc = ''
    if not keyword_set(defaults) then begin
+   
+   if not keyword_set(orig_flux) then begin
+     print,''
+     print,'***PLEASE READ !'
+     print,'The default flux calibration models are now from CASA (Butler-JPL-Horizons 2012).'
+     print,"If you want to use the original flux models, type x to quit,"
+     print," then repeat the command with /orig keyword."
+     print,'***'
+     print,''
+   endif
+
    print,'Enter source, cal code, and if cal, flux in Jy, eg: 3C273 YES 3.1'
    print,'or hit Return if all the sources are correctly specified'
    read,sngc
@@ -93,6 +104,10 @@ print,'The flux should be in Jy at the frequency of the observation'
    result=dat_list(s_l,list,/reset,/no_notify)
    jj=where(strtrim(sn,2) eq all_sources)
    j = 0
+   if n_elements(parts) eq 1 then begin
+      print,'Wrong input format !'
+      return,0
+   endif
    gc = parts[1]
    if (gc eq 'YES' or gc eq 'yes' or gc eq 'Yes' or gc eq 'Y' or gc eq 'y') then j = 1
    sp[psl].igq = j

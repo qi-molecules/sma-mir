@@ -6,6 +6,16 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+Feb. 2019: MIR update
+gain.pro, sma_flux_cal.pro, gain_sideband.pro, sma_flux_cal_ini.pro,
+   gain_cal.pro, gain_ini.pro (modified)
+-- CASA flux model used as default. keyword /orig can be used to 
+   to load original flux model
+
+readdata.pro, dbi_chan2_read2.pro (modified)
+-- reduce the memory needed for data loading by a factor of two.
+   increase the speed by a factor of 0.2 -- 2.
+
 Dec. 2019: MIR v2 release 
 
 SolarSystemModels (directory added from CASA 5.6.0 flux models)
@@ -33,6 +43,10 @@ apply_tsys.pro (modified)
 
 dbi_chan2_read2int.pro (modified)
 -- fixed a bug.
+
+uti_avgband.pro (modified)
+-- added exclude keyword.
+
 
 Aug. 2019
 

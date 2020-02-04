@@ -66,14 +66,18 @@ sch={inhid:0L,nbyt:0L,$
 
 spindx=0L
 
-if nints_expected lt 2000 then jread=100L else jread=200L
+;if nints_expected lt 2000 then jread=100L else jread=200L
+jread=50L
 nread=nints_expected/jread
-
+if nints_expected lt 2000 then jskip=100/jread else jskip=200/jread
 
 for j=0L,nread do begin
     nints_read=jread<(nints_expected-j*jread)
     if nints_read eq 0 then goto,finish
-    print,'reading integration from',in_skip+j*jread,' to ',in_skip+j*jread+nints_read-1L
+                                ;print,'reading integration
+                                ;from',in_skip+j*jread,' to
+                                ;',in_skip+j*jread+nints_read-1L
+    if (j mod jskip eq 1) or (nints_read lt jread) then print, 'reading integrations to #',in_skip+j*jread+nints_read-1L
 ;    print,'reading integration from',int_read[0],' to ',int_read[1]
     data_sch=replicate(sch,nints_read)
     point_lun,unit,first_byte & readu,unit,data_sch
@@ -110,14 +114,14 @@ for j=0L,nread do begin
 ;    offsets3=offsets+3L
 ;    offsets4=offsets+4L
 ;    integ = reform(data_sch.packdata(offsets)/10.e0,npts)
-    integ = itgs
+;;    integ = itgs
 ;    toff  = reform(data_sch.packdata(offsets1),npts)
 ;    noise = reform(long(data_sch.packdata(offsets3))*32768L +  $
 ;                   long(data_sch.packdata(offsets2)),npts)
 ;    toff and noise are just preset random numbers
     toff = intarr(npts)
     noise = lonarr(npts)+100
-    rwt   = wts*integ 
+    rwt   = wts*itgs 
 ;    scale = 2.e0^data_sch.packdata(offsets4)
     scale = 2.e0^data_sch.packdata(offsets)
 
@@ -169,20 +173,41 @@ for j=0L,nread do begin
     ch_npts=long64(total(nchs,/double))*nints_read
     chtemp=reform(chtemp,ch_npts)
     if (j eq 0) then begin
-        integs=integ
+        ch_flag=0
+        integs=itgs
         toffs=toff
         noises=noise
         rwts=rwt
         scales=scale
-        ch=chtemp
+        total_pts=total(nchs,/double)*nints_expected
+        ch=complexarr(total_pts,/nozero)
+;        ch[0:ch_npts-1L]=chtemp
+        ch[0]=chtemp
+        tmp_pt1=ch_npts
     endif else begin
-        integs=[temporary(integs),integ]
+        integs=[temporary(integs),itgs]
         toffs=[temporary(toffs),toff]
         noises=[temporary(noises),noise]
         rwts=[temporary(rwts),rwt]
         scales=[temporary(scales),scale]
-        ch=[temporary(ch),chtemp]
-    endelse
+;        tmp_pt2=tmp_pt1+ch_npts-1L
+;        ch[tmp_pt1:tmp_pt2]=chtemp
+
+        if (tmp_pt1+ch_npts-1L) gt total_pts then begin
+           print,'***'
+           print,'Warning: data structure changed, reading will take longer... '
+           print,'***' 
+           ch=ch[0:tmp_pt1-1]
+           ch_flag=1 
+        endif
+
+        if ch_flag then begin
+           chtemp=reform(chtemp,ch_npts)
+           ch=[temporary(ch),chtemp]
+        endif else ch[tmp_pt1]=chtemp
+        tmp_pt1=temporary(tmp_pt1)+ch_npts
+;        ch=[temporary(ch),chtemp]
+     endelse
 endfor
 
 finish:

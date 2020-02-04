@@ -232,7 +232,7 @@ for i=0, nbls-1 do begin
             klam=1000.d*0.299792458d/sp[b2[0]].fsky
             uvw=reform(m2##m1##neu)/klam
             if ( (abs(bl[b1[0]].u-uvw[0]) gt 0.1) or (abs(bl[b1[0]].v-uvw[1]) gt 0.1) or (abs(bl[b1[0]].w-uvw[2]) gt 0.1) ) then begin
-               print,'Check UVW coords for baseline: ',blcd,', receiver: ',rec,', sideband: ',sb 
+               if e.debug then print,'Check UVW coords for baseline: ',blcd,', receiver: ',rec,', sideband: ',sb 
 ;               for m =0L, nint-1L do begin
 ;                  n=where( in[b0].int eq ii[m], count)
 ;                  if count eq 0 then goto, jump2

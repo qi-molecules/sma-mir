@@ -4,7 +4,7 @@ function flux_scale,sources,channel,flux_inp=flux_inp,$
          wts=wts,sb=sb,iscan=iscan,bsl=bsl,vis=vis,tssb=tssb,$
          coh=coh,el=el,jct_bsl=jct_bsl,distinct_bsl=distinct_bsl,$
          distinct_sb=distinct_sb,scale_bsl=scale_bsl,jct_sig=jct_sig,$
-         noprint=noprint,good_frames=good_frames,polar=polar,casaflux=casaflux
+         noprint=noprint,good_frames=good_frames,polar=polar,orig_flux=orig_flux
 ;
 ; Flux calibration (contact Charlie Qi cqi@cfa.harvard.edu for bugs)
 ; 
@@ -129,7 +129,8 @@ function flux_scale,sources,channel,flux_inp=flux_inp,$
          j = where(source_out eq sources[i],nj)
          if (nj gt 0) then begin
            if (not keyword_set(flux_inp)) then begin
-             if keyword_set(casaflux) then result = flux_casa(strlowcase(sources[i]),radius[j],freq[j],bw[j],datatime[j],xflux) else result = flux_primary(strlowcase(sources[i]),radius[j],freq[j],xflux)
+             if keyword_set(orig_flux) then result = flux_primary(strlowcase(sources[i]),radius[j],freq[j],xflux) else result = flux_casa(strlowcase(sources[i]),radius[j],freq[j],bw[j],datatime[j],xflux) 
+
              if (result eq 1) then begin
                 flux[j] = xflux
              endif else begin
