@@ -6,6 +6,17 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+Mar. 2020: MIR v3 release
+
+readata.pro, dbi_head2_read2.pro (modified)
+-- add new headers stype, svtype for sources and supply values
+   for vrra, vrdec, lst, mjd, ara, adec for IN structures.
+   uvw converted from meter to kilolambda.
+
+uti_vel_fix.pro uti_uvw_fix.pro (modified)
+-- fixed a few bugs.
+
+
 Feb. 2019: MIR update
 gain.pro, sma_flux_cal.pro, gain_sideband.pro, sma_flux_cal_ini.pro,
    gain_cal.pro, gain_ini.pro (modified)

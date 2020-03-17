@@ -7,8 +7,7 @@ datobs=c.ref_time[in[pi[0]].iref_time]
 months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 mon=strmid(datobs,0,3)
 j=where(mon eq months,count)
-num_day_obs=[fix(strtrim(strmid(datobs,8,4),2)),fix(strtrim(string(j[0]+1),2)),(strtrim(strmid(datob
-s,4,2),2))]
+num_day_obs=[fix(strtrim(strmid(datobs,8,4),2)),fix(strtrim(string(j[0]+1),2)),(strtrim(strmid(datobs,4,2),2))]
 day=strtrim(string(num_day_obs[2]),2)
 yr =strtrim(string(num_day_obs[0]),2)
 mo =strtrim(string(num_day_obs[1]),2)

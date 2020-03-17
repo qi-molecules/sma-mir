@@ -21,22 +21,22 @@ endif
 
 result=dat_filter(s_s,/save,/no_notify)
 command='"band" eq "'+refband+'"'
-result=dat_filter(s_f,command,/no_notify,/reset)
+result=dat_list(s_l,command,/no_notify,/reset)
 
-f0=sp[psf].fsky
-v0=sp[psf].vel
+f0=sp[psl].fsky
+v0=sp[psl].vel
 fs=f0/sqrt((1-v0*1000.d/!cvel)/(1+v0*1000.d/!cvel))
 
 command='"band" eq "'+band+'"'
-result1=dat_filter(s_f,command,/no_notify,/reset)
+result1=dat_list(s_l,command,/no_notify,/reset)
 if result ne result1 then begin
    print, 'Inconsistent scan numbers for both bands, Quit!'
    return
 endif
    
-f1=sp[psf].fsky
+f1=sp[psl].fsky
 alpha=(f1/fs)^2.
-sp[psf].vel=-(alpha-1.)*!cvel/(1000.d*(alpha+1.))
+sp[psl].vel=-(alpha-1.)*!cvel/(1000.d*(alpha+1.))
 ;sp[psf].vel=v1
 
 result=dat_filter(s_s,/restore,/no_notify)
@@ -67,7 +67,7 @@ if not keyword_set(refband) then begin
 endif
 
 command='"band" eq "'+refband+'" and "sb" eq "'+refsb+'"'
-result=dat_filter(s_f,command,/no_notify,/reset)
+result=dat_list(s_l,command,/no_notify,/reset)
 print, '*************************'
 print, 'Regenerating velocity header based on input information from ',refsb+refband+'...'
 
@@ -75,39 +75,43 @@ print, 'Regenerating velocity header based on input information from ',refsb+ref
 
 velo=in[0].vc*double(1000.)+sp[0].vradcat
 beta=velo/!cvel
-delta=(reffreq-sqrt((1+beta)/(1-beta))*sp[psf[0]].fsky)/reffreq*!cvel/1000.
-sp[psf].vel=double(refvel+delta)
+delta=(reffreq-sqrt((1+beta)/(1-beta))*sp[psl[0]].fsky)/reffreq*!cvel/1000.
+sp[psl].vel=double(refvel+delta)
 ;velheader=double(catv+delta)
 ;print,velheader
 
-f0=sp[psf].fsky
-v0=sp[psf].vel
+f0=sp[psl].fsky
+v0=sp[psl].vel
 fs=f0/sqrt((1-v0*1000.d/!cvel)/(1+v0*1000.d/!cvel))
 
 command='"band" eq "'+refband+'" and "sb" ne "'+refsb+'"'
 ;print,command
-result=dat_filter(s_f,command,/no_notify,/reset)
-f1=sp[psf].fsky
+result=dat_list(s_l,command,/no_notify,/reset)
+f1=sp[psl].fsky
 alpha=(f1/fs)^2.
-sp[psf].vel=-(alpha-1.)*!cvel/(1000.d*(alpha+1.))
+sp[psl].vel=-(alpha-1.)*!cvel/(1000.d*(alpha+1.))
 
 command='"band" eq "'+refband+'"'
-result=dat_filter(s_f,command,/no_notify,/reset)
-f0=sp[psf].fsky
-v0=sp[psf].vel
+result=dat_list(s_l,command,/no_notify,/reset)
+f0=sp[psl].fsky
+v0=sp[psl].vel
 fs=f0/sqrt((1-v0*1000.d/!cvel)/(1+v0*1000.d/!cvel))
 
 allbands=uti_distinct(sp.iband,nbands,/many_repeat)
 for i=0,nbands-1 do begin
    command='"iband" eq"'+strcompress(string(allbands[i]),/remove)+'"'
-   result=dat_filter(s_f,command,/no_notify,/reset)
-   f1=sp[psf].fsky
-   alpha=(f1/fs)^2.
-   sp[psf].vel=-(alpha-1.)*!cvel/(1000.d*(alpha+1.))
+   result=dat_list(s_l,command,/no_notify,/reset)
+   if result gt 0 then begin
+      f1=sp[psl].fsky
+      alpha=(f1/fs)^2.
+      sp[psl].vel=-(alpha-1.)*!cvel/(1000.d*(alpha+1.))
+   endif
 endfor
 
 print,'Done!'
 print, '*************************'
+
+result=dat_list(s_l,/no_notify,/reset)
 
 endelse
 

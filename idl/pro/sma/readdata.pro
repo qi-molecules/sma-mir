@@ -197,15 +197,30 @@ for i=0, nants-1 do begin
    if count eq 0 then uti_addhdr,ant=realants[i]
 endfor
 
-
-
-lat=double(19.82420526391d*!dpi/180.d)
-m1=[[-sin(lat),0,cos(lat)],[0,1,0],[cos(lat),0,sin(lat)]]
-
 res=dat_filter(s_f,'"wt" gt "0"',/reset,/no_notify)
 distinct_bls=uti_distinct(c.blcd[bl[pbf].iblcd],nbls,/many_repeat)
 distinct_recs=uti_distinct(c.rec[bl[pbf].irec],nrecs,/many_repeat)
 distinct_sbs=uti_distinct(strupcase(c.sb[bl[pbf].isb]),nsbs,/many_repeat)
+; Check data epoch
+;if (fix(c.filever) lt 2) then begin
+datobs=c.ref_time[in[pi[0]].iref_time]
+months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+mon=strmid(datobs,0,3)
+j=where(mon eq months,count)
+num_day_obs=[fix(strtrim(strmid(datobs,8,4),2)),fix(strtrim(string(j[0]+1),2)),(strtrim(strmid(datobs,4,2),2))]
+day=strtrim(string(num_day_obs[2]),2)
+yr =strtrim(string(num_day_obs[0]),2)
+mo =strtrim(string(num_day_obs[1]),2)
+mJD=uti_date2mjd(yr,mo,day)
+;   print,'mjd: ', mjd
+mjd2000=uti_date2mjd(2000,1,1)
+newepoch=2000.+(mJD-mjd2000)/365.
+;endif
+
+; check uvw
+lat=double(19.82420526391d*!dpi/180.d)
+m1=[[-sin(lat),0,cos(lat)],[0,1,0],[cos(lat),0,sin(lat)]]
+
 ii=uti_distinct(in[pif].int,nint,/many_repeat)
 a0=pif & a1=pbf & a2=psf
 for i=0, nbls-1 do begin
@@ -225,38 +240,55 @@ for i=0, nbls-1 do begin
             b0=a0[n] & b1=a1[n] & b2=a2[n]
             h=in[b0[0]].ha*15.d*!dpi/180.d
             dec=in[b0[0]].decr
+            ra=in[b0[0]].rar
+            uti_precess,ra,dec,2000,newepoch,/radian
+            if min([fix(c.filever)]) ge 3 then dec=in[b0[0]].inhdbl5 ;adec
             m2=[[sin(h),cos(h),0],[-sin(dec)*cos(h),sin(dec)*sin(h),cos(dec)],$
                 [cos(dec)*cos(h),-cos(dec)*sin(h),sin(dec)]]
             neu=[bl[b1[0]].bln,bl[b1[0]].ble,bl[b1[0]].blu]
             neu=transpose(neu)
-            klam=1000.d*0.299792458d/sp[b2[0]].fsky
+;            klam=1000.d*0.299792458d/sp[b2[0]].fsky or !cvel/sp[0].fsky/1e6 
+;            uvw=reform(m2##m1##neu)/klam
+            klam=!cvel/sp[b2[0]].fsky/1e6
             uvw=reform(m2##m1##neu)/klam
-            if ( (abs(bl[b1[0]].u-uvw[0]) gt 0.1) or (abs(bl[b1[0]].v-uvw[1]) gt 0.1) or (abs(bl[b1[0]].w-uvw[2]) gt 0.1) ) then begin
-               if e.debug then print,'Check UVW coords for baseline: ',blcd,', receiver: ',rec,', sideband: ',sb 
-;               for m =0L, nint-1L do begin
-;                  n=where( in[b0].int eq ii[m], count)
-;                  if count eq 0 then goto, jump2
-;                  c0=b0[n] & c1=b1[n] & c2=b2[n]
-;                  h=in[c0[0]].ha*15.d*!dpi/180.d
-;                  dec=in[c0[0]].decr
-;                  m2=[[sin(h),cos(h),0],[-sin(dec)*cos(h),sin(dec)*sin(h),cos(dec)],$
-;                      [cos(dec)*cos(h),-cos(dec)*sin(h),sin(dec)]]
-;                  neu=[bl[c1[0]].bln,bl[c1[0]].ble,bl[c1[0]].blu]
-;                  neu=transpose(neu)
-;                  klam=1000.d*0.299792458d/sp[c2[0]].fsky
-;                  uvw=reform(m2##m1##neu)/klam
-;                  bl[c1].u=uvw[0]
-;                  bl[c1].v=uvw[1]
-;                  bl[c1].w=uvw[2]
-;                  bl[c1].prbl=sqrt(bl[c1].u*bl[c1].u+bl[c1].v*bl[c1].v)
-;                  jump2: 
-;               endfor           ; integration
+            if min([fix(c.filever)]) ge 3 then begin
+               bl[b1].u=bl[b1].u/klam
+               bl[b1].v=bl[b1].v/klam
+               bl[b1].w=bl[b1].w/klam
+               bl[b1].prbl=sqrt(bl[b1].u*bl[b1].u+bl[b1].v*bl[b1].v)
             endif
-         endif 
+
+;            stop
+;            print,bl[b1[0]].u,bl[b1[0]].v,bl[b1[0]].w
+;            print,uvw[0],uvw[1],uvw[2]
+;            read,iii
+            if e.debug then begin
+               if ( (abs(bl[b1[0]].u-uvw[0]) gt 0.2) or (abs(bl[b1[0]].v-uvw[1]) gt 0.2) or (abs(bl[b1[0]].w-uvw[2]) gt 0.2) ) then print,'Check UVW coords for baseline: ',blcd,', receiver: ',rec,', sideband: ',sb
+               for m =0L, nint-1L do begin
+                  n=where( in[b0].int eq ii[m], count)
+                  if count eq 0 then goto, jump2
+                  c0=b0[n] & c1=b1[n] & c2=b2[n]
+                  klam=!cvel/sp[c2[0]].fsky/1e6
+;                  bl[c1].u=bl[c1].u/klam
+;                  bl[c1].v=bl[c1].v/klam
+;                  bl[c1].w=bl[c1].w/klam
+;                  bl[c1].prbl=sqrt(bl[c1].u*bl[c1].u+bl[c1].v*bl[c1].v)  
+                  h=in[c0[0]].ha*15.d*!dpi/180.d
+                  dec=in[c0[0]].inhdbl5 ; adec
+                  m2=[[sin(h),cos(h),0],[-sin(dec)*cos(h),sin(dec)*sin(h),cos(dec)],$
+                      [cos(dec)*cos(h),-cos(dec)*sin(h),sin(dec)]]
+                  neu=[bl[c1[0]].bln,bl[c1[0]].ble,bl[c1[0]].blu]
+                  neu=transpose(neu)
+;                  klam=1000.d*0.299792458d/sp[c2[0]].fsky
+                  uvw=reform(m2##m1##neu)/klam
+                  print,uvw
+                  jump2:                        
+               endfor           ; integration
+            endif               ; debug
+         endif                  ; count
       endfor                    ; sbs
    endfor                       ; recs
 endfor                          ; baselines 
-
 
 ;res=dat_filter(s_f,'"wt" gt "0"',/reset,/no_notify)
 
@@ -320,19 +352,7 @@ endif
 res=dat_filter(s_f,'"wt" gt "0"',/reset,/no_notify)
 pols=uti_distinct(bl[pbf].ipol,npol,/many)
 if (not keyword_set(nopolcor)) and (npol eq 4) then begin
-; mJD
-   datobs=c.ref_time[in[pi[0]].iref_time]
-   months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-   mon=strmid(datobs,0,3)
-   j=where(mon eq months,count)
-   num_day_obs=[fix(strtrim(strmid(datobs,8,4),2)),fix(strtrim(string(j[0]+1),2)),(strtrim(strmid(datobs,4,2),2))]
-   day=strtrim(string(num_day_obs[2]),2)
-   yr =strtrim(string(num_day_obs[0]),2)
-   mo =strtrim(string(num_day_obs[1]),2)
-   mJD=uti_date2mjd(yr,mo,day)
-   ;print,'mjd: ', mjd
-   mjd2000=uti_date2mjd(2000,1,1)
-   newepoch=2000.+(mJD-mjd2000)/365.
+   ; mJD from above
    datatime=mJD+in[pil[0]].dhrs/24.
    ;print,'datatime: ',datatime
    print,''
@@ -474,7 +494,3 @@ endif
 res=dat_filter(s_f,/reset,/no_notify)
 
 end
-
-
-
-

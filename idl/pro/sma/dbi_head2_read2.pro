@@ -16,7 +16,7 @@ inh_temp={traid:0L,inhid:0L,$
          souid:0L,isource:0,ivrad:0,offx:0e,offy:0e,$
          ira:0,$
          idec:0,rar:0d,decr:0d,epoch:0e,size:0e,$
-         inhint1:0L,inhint2:0L,inhint3:0L,$
+         inhint1:0e,inhint2:0e,inhint3:0e,$
          inhint4:0L,inhint5:0L,inhint6:0L,yigfreq1:0d,$
          yigfreq2:0d,sflux:0d,inhdbl4:0d,inhdbl5:0d,inhdbl6:0d}
 blh_temp={blhid:0L,inhid:0L,isb:0,ipol:0,$
@@ -221,6 +221,9 @@ ut = strarr(1)
 vctype = strarr(1)
 vtype = strarr(1)
 filever= strarr(1)
+svtype=strarr(1)
+stype = strarr(1)
+project=strarr(1)
 
 aa = bytarr(42)
 point_lun,unit,0L
@@ -283,7 +286,10 @@ for i=0L,(nrows-1L) do  begin
        'ut'   : ut(code_temp.icode)=strtrim(code_temp.code,2L)
        'vctype': vctype(code_temp.icode)=strtrim(code_temp.code,2L)          
        'vtype' : vtype(code_temp.icode)=strtrim(code_temp.code,2L)
-       'filever': filever(code_temp.icode)=strtrim(code_temp.code,2L)          
+       'filever': filever(code_temp.icode)=strtrim(code_temp.code,2L)
+       'svtype' : svtype(code_temp.icode)=strtrim(code_temp.code,2L)
+       'stype' : stype(code_temp.icode)=strtrim(code_temp.code,2L)
+       'project': project(code_temp.icode)=strtrim(code_temp.code,2L)       
        else : print,strtrim(code_temp.v_name,2L),' not recognized !'
   endcase         
 endfor
@@ -318,7 +324,8 @@ c = { $
      ut:ut,ref_time:ref_time,sb:sb,$
      pol:pol,rec:rec,tel1:tel1,tel2:tel2,blcd:blcd,$
      gq:gq,pq:pq,band:band,pstate:pstate,$
-     source:source,vrad:vrad,ra:ra,dec:dec,filever:filever,$
+     source:source,vrad:vrad,ra:ra,dec:dec,$
+     filever:filever,stype:stype,svtype:svtype,project:project,$
      icode_s:icode_s,icode_tag:icode_tag}
 
 if keyword_set(newwindows) then begin
@@ -688,7 +695,7 @@ for i=0L,nblcds-1L do begin
       endelse
    endif   
 
-   lat=19.82420526391d/57.29577951
+   lat=19.82420526391d*!dpi/180.
    m1=[[-sin(lat),0,cos(lat)],[0,1,0],[cos(lat),0,sin(lat)]]
    neu=xyz##m1
 ;   print,neu
