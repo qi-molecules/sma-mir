@@ -117,18 +117,34 @@ if tag_exist(bl,'csnr') ne 0 then begin
      ra:strarr(nctags[26]),dec:strarr(nctags[27]),$
      icode_s:strarr(nctags[28]),icode_tag:strarr(nctags[29])}
 endif else begin
-   c = { $
-     ut:strarr(nctags[0]), $
-     ref_time:strarr(nctags[1]), $
-     sb:strarr(nctags[2]),pol:strarr(nctags[3]),$
-     rec:strarr(nctags[4]),$
-     tel1:strarr(nctags[5]),$
-     tel2:strarr(nctags[6]),blcd:strarr(nctags[7]),$
-     gq:strarr(nctags[8]),pq:strarr(nctags[9]),$
-     band:strarr(nctags[10]),pstate:strarr(nctags[11]),$
-     source:strarr(nctags[12]),vrad:strarr(nctags[13]),$
-     ra:strarr(nctags[14]),dec:strarr(nctags[15]),$
-     icode_s:strarr(nctags[16]),icode_tag:strarr(nctags[17])}
+   if tag_exist(c,'filever') then begin
+      c = { $
+          ut:strarr(nctags[0]), $
+          ref_time:strarr(nctags[1]), $
+          sb:strarr(nctags[2]),pol:strarr(nctags[3]),$
+          rec:strarr(nctags[4]),tel1:strarr(nctags[5]),$
+          tel2:strarr(nctags[6]),blcd:strarr(nctags[7]),$
+          gq:strarr(nctags[8]),pq:strarr(nctags[9]),$
+          band:strarr(nctags[10]),pstate:strarr(nctags[11]),$
+          source:strarr(nctags[12]),vrad:strarr(nctags[13]),$
+          ra:strarr(nctags[14]),dec:strarr(nctags[15]),filever:strarr(nctags[16]),$
+          stype:strarr(nctags[17]),svtype:strarr(nctags[18]),$
+          project:strarr(nctags[19]),$
+          icode_s:strarr(nctags[20]),icode_tag:strarr(nctags[21])}
+   endif else begin
+      c = { $
+          ut:strarr(nctags[0]), $
+          ref_time:strarr(nctags[1]), $
+          sb:strarr(nctags[2]),pol:strarr(nctags[3]),$
+          rec:strarr(nctags[4]),tel1:strarr(nctags[5]),$
+          tel2:strarr(nctags[6]),blcd:strarr(nctags[7]),$
+          gq:strarr(nctags[8]),pq:strarr(nctags[9]),$
+          band:strarr(nctags[10]),pstate:strarr(nctags[11]),$
+          source:strarr(nctags[12]),vrad:strarr(nctags[13]),$
+          ra:strarr(nctags[14]),dec:strarr(nctags[15]),$
+          icode_s:strarr(nctags[16]),icode_tag:strarr(nctags[17])}
+   endelse 
+
 endelse
    
 k = 0

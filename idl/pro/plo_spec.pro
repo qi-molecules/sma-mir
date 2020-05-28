@@ -285,7 +285,7 @@ for js=0,n_elements(distinct_sources)-1 do begin
         case symbol_vars of
           'rec'        : symbol=rec
           'sb'         : symbol=strupcase(sb)
-          ''           : symbol=''
+          ''           : symbol=rec+' '+strupcase(sb)+' '+strupcase(band)
           else: begin 
             print,'*** ',symbol_vars,' invalid for symbol variables !' & return,-1
           endelse
@@ -414,7 +414,7 @@ for js=0,n_elements(distinct_sources)-1 do begin
         case symbol_vars of
           'rec'        : symbol=rec
           'sb'         : symbol=strupcase(sb)
-          ''           : symbol=''
+          ''           : symbol=rec+' '+strupcase(sb)+' '+strupcase(band)
           else: begin 
             print,'*** ',symbol_vars,' invalid for symbol variables !' & return,-1
           endelse

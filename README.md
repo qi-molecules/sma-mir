@@ -6,6 +6,14 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+May 2020: MIR update
+
+plo_page.pro, plo_spec.pro
+-- remove boxy lines in spectra plotting for different sb/rx
+
+dat_merge_sma.pro, uti_addhdr.pro
+-- update data merging and header adding with mir v3 information.
+
 Mar. 2020: MIR v3 release
 
 readata.pro, dbi_head2_read2.pro (modified)

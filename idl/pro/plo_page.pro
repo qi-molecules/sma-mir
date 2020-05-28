@@ -175,8 +175,8 @@ if (pl[plid].plot_type ne 'map') then begin
           if j eq 1 then xyouts,xsy,0.005,font=-1,charsize=char_norm, $
               distinct_symbols(j)+' : dotted line, +',alignment=0.5,/norm
         endif else begin
-           xyouts,xc0+(j+1)*dxc,yc0-j*dyc,font=-1,charsize=char_norm, $
-               distinct_symbols(j),alignment=0.5,/norm
+;           xyouts,xc0+(j+1)*dxc,yc0-j*dyc,font=-1,charsize=char_norm, $
+;               distinct_symbols(j),alignment=0.5,/norm
         endelse
       endif
     endfor

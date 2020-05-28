@@ -354,7 +354,9 @@ endif else begin
           band:strarr(ncodes[0,10]),pstate:strarr(ncodes[0,11]),$
           source:strarr(nctags[12]),vrad:strarr(ncodes[0,13]),$
           ra:strarr(nctags[14]),dec:strarr(nctags[15]),filever:strarr(nctags[16]),$
-          icode_s:strarr(ncodes[0,17]),icode_tag:strarr(ncodes[0,18])}
+          stype:strarr(nctags[17]),svtype:strarr(nctags[18]),$
+          project:strarr(nctags[19]),$
+          icode_s:strarr(ncodes[0,20]),icode_tag:strarr(ncodes[0,21])}
    endif else begin
       c = { $
           ut:strarr(nctags[0]), $
