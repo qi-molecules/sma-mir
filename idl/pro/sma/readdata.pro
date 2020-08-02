@@ -1,4 +1,4 @@
-pro readdata,directory=directory, newformat=newformat,int_read=int_read, skip=skip, full=full, sideband=sideband, rx=rx, band_read=band_read, old=old, if1=if1, if2=if2, if3=if3, if4=if4, asic=asic, swarm=swarm, swmavg=swmavg, windows=windows, nopolcor=nopolcor, defaults=defaults
+pro readdata,directory=directory, newformat=newformat,int_read=int_read, skip=skip, full=full, sideband=sideband, rx=rx, band_read=band_read, old=old, if1=if1, if2=if2, if3=if3, if4=if4, asic=asic, swarm=swarm, swmavg=swmavg, nopolcor=nopolcor, defaults=defaults
 ;yes
 ;=Task:READDATA --- To read data from specified directory
 ;#Type: i/o
@@ -32,19 +32,6 @@ if not keyword_set(sideband) then sideband=0
 if not keyword_set(rx) then rx=0
 if not keyword_set(int_read) then int_read=0
 if not keyword_set(band_read) then band_read=0
-
-;if keyword_set(windows) then begin
-;   temp=size(windows)
-;   if temp[0] eq 1 then nwindows=1 else nwindows=temp[2]
-;   navg=intarr(2+nwindows)+1
-;   navg[0]=n1
-;   navg[1]=n2
-;   for i=0, nwindows-1 do navg[2+i]=windows[3,i]
-;endif else begin
-;   navg=intarr(2)+1
-;   navg[0]=n1
-;   navg[1]=n2
-;endelse
 
 if keyword_set(directory) then begin
     nchar = strlen(directory)
@@ -103,7 +90,7 @@ if keyword_set(directory) then begin
     if newformat ne 0 then begin
        result=dbi_head2_read2(int_read=int_read, $
          sideband=sideband,rx=rx,band_read=band_read,$
-         iblfix=iblfix, endianFlag=endianFlag,newwindows=windows,$
+         iblfix=iblfix, endianFlag=endianFlag,$
          if1=if1, if2=if2, if3=if3, if4=if4, defaults=defaults,$
          asic=asic, swarm=swarm, swmavg=swmavg, nbins=nbins)
        if result lt 0 then return
@@ -145,7 +132,7 @@ if keyword_set(directory) then begin
 ;       print,'newformat'
        result=dbi_head2_read2(int_read=int_read, $
          sideband=sideband,rx=rx,band_read=band_read,$
-         iblfix=iblfix, endianFlag=endianFlag,newwindows=windows,$
+         iblfix=iblfix, endianFlag=endianFlag,$
          if1=if1, if2=if2, if3=if3, if4=if4, defaults=defaults,$
          asic=asic, swarm=swarm, swmavg=swmavg, nbins=nbins)
        if result lt 0 then return
@@ -242,20 +229,22 @@ for i=0, nbls-1 do begin
             dec=in[b0[0]].decr
             ra=in[b0[0]].rar
             uti_precess,ra,dec,2000,newepoch,/radian
-            if min([fix(c.filever)]) ge 3 then dec=in[b0[0]].inhdbl5 ;adec
-            m2=[[sin(h),cos(h),0],[-sin(dec)*cos(h),sin(dec)*sin(h),cos(dec)],$
-                [cos(dec)*cos(h),-cos(dec)*sin(h),sin(dec)]]
-            neu=[bl[b1[0]].bln,bl[b1[0]].ble,bl[b1[0]].blu]
-            neu=transpose(neu)
+            if newformat ne 0 then begin
+               if min([fix(c.filever)]) ge 3 then dec=in[b0[0]].adec ;adec
+               m2=[[sin(h),cos(h),0],[-sin(dec)*cos(h),sin(dec)*sin(h),cos(dec)],$
+                   [cos(dec)*cos(h),-cos(dec)*sin(h),sin(dec)]]
+               neu=[bl[b1[0]].bln,bl[b1[0]].ble,bl[b1[0]].blu]
+               neu=transpose(neu)
 ;            klam=1000.d*0.299792458d/sp[b2[0]].fsky or !cvel/sp[0].fsky/1e6 
 ;            uvw=reform(m2##m1##neu)/klam
-            klam=!cvel/sp[b2[0]].fsky/1e6
-            uvw=reform(m2##m1##neu)/klam
-            if min([fix(c.filever)]) ge 3 then begin
-               bl[b1].u=bl[b1].u/klam
-               bl[b1].v=bl[b1].v/klam
-               bl[b1].w=bl[b1].w/klam
-               bl[b1].prbl=sqrt(bl[b1].u*bl[b1].u+bl[b1].v*bl[b1].v)
+               klam=!cvel/sp[b2[0]].fsky/1e6
+               uvw=reform(m2##m1##neu)/klam
+               if min([fix(c.filever)]) ge 3 then begin
+                  bl[b1].u=bl[b1].u/klam
+                  bl[b1].v=bl[b1].v/klam
+                  bl[b1].w=bl[b1].w/klam
+                  bl[b1].prbl=sqrt(bl[b1].u*bl[b1].u+bl[b1].v*bl[b1].v)
+               endif
             endif
 
 ;            stop
@@ -274,7 +263,7 @@ for i=0, nbls-1 do begin
 ;                  bl[c1].w=bl[c1].w/klam
 ;                  bl[c1].prbl=sqrt(bl[c1].u*bl[c1].u+bl[c1].v*bl[c1].v)  
                   h=in[c0[0]].ha*15.d*!dpi/180.d
-                  dec=in[c0[0]].inhdbl5 ; adec
+                  dec=in[c0[0]].adec ; adec
                   m2=[[sin(h),cos(h),0],[-sin(dec)*cos(h),sin(dec)*sin(h),cos(dec)],$
                       [cos(dec)*cos(h),-cos(dec)*sin(h),sin(dec)]]
                   neu=[bl[c1[0]].bln,bl[c1[0]].ble,bl[c1[0]].blu]
@@ -331,11 +320,13 @@ if nrecs gt 1 then begin
             print,'NO: nothing done'
          endelse
       endif else begin
-         print,'This dualrx track might have a wrong data structure .'
-         print,'If this is not supposed to be a dual receiver track,'
-         print,'there must be some header problems, which you can fix'
-         print,'by type "bl.irec=1" after you load the data.'
-         print,'Otherwise, please report this track directory to cqi@cfa.'
+         if sp[0].nch eq 1 then begin
+            print,'This dualrx track might have a wrong data structure .'
+            print,'If this is not supposed to be a dual receiver track,'
+            print,'there must be some header problems, which you can fix'
+            print,'by type "bl.irec=1" after you load the data.'
+            print,'Otherwise, please report this track directory to cqi@cfa.'
+         endif 
       endelse
    endif
 endif
@@ -490,6 +481,10 @@ if (not keyword_set(nopolcor)) and (npol eq 4) then begin
        print, 'For example: IDL> readdata,dir='''+directory+''',/nopolcor'
    endif
 endif
+
+if newformat then res=dat_filter(s_f,'"sphint1" eq "1" or "iband" ge "49"',/no_notify,/reset) else res=dat_filter(s_f,'"iband" ge "49"',/no_notify,/reset)
+if res gt 0 then sp[psf].fsky = sp[psf].fsky - (signum(sp[psf].fres)*139.648e-6)
+
 
 res=dat_filter(s_f,/reset,/no_notify)
 

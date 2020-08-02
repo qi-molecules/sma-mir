@@ -182,7 +182,19 @@ pro sma_cal_bas, subtract_delay=subtrack_delay, ntel=ntel,oldantennas=oldantenna
              dph = dphwl[0] / wlchn
 ;             cphz = complex(cos(dph[n_elements(dph)-1L]),sin(dph[n_elements(dph)-1L])) ; chunk based 
              cphz = complex(cos(dph),sin(dph))
-             if (sp[psl[jsj]].nch eq 1) then bl[pbl[jsj]].phaave=uti_pha_180(bl[pbl[jsj]].phaave+dph*!radeg)
+             if (sp[psl[jsj]].nch lt 10) then begin
+                if (sp[psl[jsj]].nch gt 1) then begin
+                   if bl[pbl[jsj]].fave eq 0 then begin
+                      print,'Please regenerate continuum with uti_avgband first!'
+                      print,'No correction done yet. Quit!'
+                      return
+                   endif else begin
+                      cfreq=bl[pbl[jsj]].fave
+                      cdph=dphwl[0]*cfreq/cvel
+                      bl[pbl[jsj]].phaave=uti_pha_180(bl[pbl[jsj]].phaave+cdph*!radeg)
+                   endelse
+                endif else bl[pbl[jsj]].phaave=uti_pha_180(bl[pbl[jsj]].phaave+dph*!radeg)
+             endif
              j1 = pcl[jsj]
              j2 = pcl_end[jsj] < (n_elements(ch)-1L)
              ch[j1:j2] = ch[j1:j2] * cphz

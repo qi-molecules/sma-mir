@@ -43,7 +43,7 @@ if newformat eq 0 then begin
       return
    endif
 endif else begin
-   if (bl[pbf[0]].blhdbl3 le 40.) or (bl[pbf[0]].blhdbl4 le 40.) then begin
+   if (bl[pbf[0]].blhdbl5 le 40.) or (bl[pbf[0]].blhdbl4 le 40.) then begin
       print,'You need run tsys_ant first before using this program.'
       print,'Quit !'
       return
@@ -62,7 +62,7 @@ print,"Calculating baseline-based Tsys..."
 for i=0,nants-2 do begin
   for j=i+1,nants-1 do begin
     loc=where(bl[pbf].itel1 eq ants[i] and bl[pbf].itel2 eq ants[j]) 
-    if newformat eq 0 then sp[psf[loc]].tssb = sqrt( bl[pbf[loc]].csnr * bl[pbf[loc]].cnoise ) else sp[psf[loc]].tssb = sqrt( bl[pbf[loc]].blhdbl3 * bl[pbf[loc]].blhdbl4 )
+    if newformat eq 0 then sp[psf[loc]].tssb = sqrt( bl[pbf[loc]].csnr * bl[pbf[loc]].cnoise ) else sp[psf[loc]].tssb = sqrt( bl[pbf[loc]].blhdbl5 * bl[pbf[loc]].blhdbl4 )
   endfor
 endfor
 

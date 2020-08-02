@@ -25,47 +25,61 @@ recs=c.rec(bl[pbl].irec)
 combinations=bls+' '+sbs+' '+recs
 distinct_combinations=uti_distinct(combinations,ncombinations,/many_repeat)
 ii=uti_distinct(in[pil].int,nint,/many_repeat)
-for i=0L,nint-1L do begin
-   s_int=strcompress(string(ii[i]),/remove_all)
-   if (i eq (i/100)*100) then print,'Fixing uvw coord in integration # from '+s_int+' to '+strcompress(string( ii[(((i/100+1)*100)<nint-1)] ),/remove_all)
-   result=dat_list(s_l,'"int" eq "'+s_int+'"',/no_notify,/reset)
-   result=dat_list(s_l,/save,/no_notify)
-;   print,'Fixing integration #:',s_int
-   for j=0L,ncombinations-1L do begin
-      result=dat_list(s_l,/restore,/no_notify)
-      result=dat_comb_sep(distinct_combinations[j],['blcd','sb','rec'], $
-        codes,icodes,n_components)
-      result=dat_list(s_l,'"blcd" eq "'+codes(0)+ $
-        '" and "rec" eq "'+codes[2] + $
-        '" and "sb" eq "'+codes(1)+ '"',/no_notify)
-      if n_elements(pcl) ge 1 and result gt 0 then begin
-         h=in[pil[0]].ha*15.d*!dpi/180.d
-         dec=in[pil[0]].decr
-         ra=in[pil[0]].rar
-         uti_precess,ra,dec,2000,newepoch,/radian
-         if tag_exist(c,'filever') then begin
-            if min([fix(c.filever)]) ge 3 then begin
-               ;print,'calculated adec is ',dec
-               dec=in[pil[0]].adec
-               ;print,'data adec is ',dec
-            endif
-         endif               
+a0=pil & a1=pbl & a2=psl
+for i=0, nbls-1 do begin
+   blcd=distinct_bls[i]
+   ibl=min(where(c.blcd eq blcd))
+;   print,'baseline:',blcd
+   for j=0, nrecs-1 do begin
+      rec=distinct_recs[j]
+      irx=min(where(c.rec eq rec))
+;      print,'receiver:',rec
+      for k=0, nsbs-1 do begin
+         sb=distinct_sbs[k]
+         isbd=min(where(c.sb eq strlowcase(sb)))
+;         print,'sideband:',sb
+         n=where( (bl[a1].irec eq irx) and (bl[a1].isb eq isbd) and (bl[a1].iblcd eq ibl), count)
+         if count gt 0 then begin
+            b0=a0[n] & b1=a1[n] & b2=a2[n]
+            h=in[b0[0]].ha*15.d*!dpi/180.d
+            dec=in[b0[0]].decr
+            ra=in[b0[0]].rar
+            uti_precess,ra,dec,2000,newepoch,/radian
+            if min([fix(c.filever)]) ge 3 then dec=in[b0[0]].adec ;adec
+            m2=[[sin(h),cos(h),0],[-sin(dec)*cos(h),sin(dec)*sin(h),cos(dec)],$
+                [cos(dec)*cos(h),-cos(dec)*sin(h),sin(dec)]]
+            neu=[bl[b1[0]].bln,bl[b1[0]].ble,bl[b1[0]].blu]
+            neu=transpose(neu)
+;            klam=!cvel/sp[b2[0]].fsky/1e6
+;            uvw=reform(m2##m1##neu)/klam
 
-         m2=[[sin(h),cos(h),0],[-sin(dec)*cos(h),sin(dec)*sin(h),cos(dec)],$
-           [cos(dec)*cos(h),-cos(dec)*sin(h),sin(dec)]]
-         neu=[bl[pbl[0]].bln,bl[pbl[0]].ble,bl[pbl[0]].blu]
-         neu=transpose(neu)
-;         uvw=reform(m2##m1##neu)/(1000.d*0.299792458d/sp[psl[0]].fsky)
-;         print,uvw
-         klam=!cvel/sp[psl[0]].fsky/1e6
-         uvw=reform(m2##m1##neu)/klam
-         bl[pbl].u=uvw[0]
-         bl[pbl].v=uvw[1]
-         bl[pbl].w=uvw[2]
-         bl[pbl].prbl=sqrt(bl[pbl].u*bl[pbl].u+bl[pbl].v*bl[pbl].v)
-      endif
-   endfor
-endfor
+            for m =0L, nint-1L do begin
+               s_int=strcompress(string(ii[m]),/remove_all)
+               if (m eq (m/100)*100) then print,'Fixing uvw coord in integration # from '+s_int+' to '+strcompress(string( ii[(((m/100+1)*100)<nint-1)] ),/remove_all)
+
+               n=where( in[b0].int eq ii[m], count)
+               if count eq 0 then goto, jump2
+               c0=b0[n] & c1=b1[n] & c2=b2[n]
+               klam=!cvel/sp[c2[0]].fsky/1e6
+               h=in[c0[0]].ha*15.d*!dpi/180.d
+               dec=in[c0[0]].adec ; adec
+               m2=[[sin(h),cos(h),0],[-sin(dec)*cos(h),sin(dec)*sin(h),cos(dec)],$
+                      [cos(dec)*cos(h),-cos(dec)*sin(h),sin(dec)]]
+               neu=[bl[c1[0]].bln,bl[c1[0]].ble,bl[c1[0]].blu]
+               neu=transpose(neu)
+               uvw=reform(m2##m1##neu)/klam
+               bl[c1].u=uvw[0]
+               bl[c1].v=uvw[1]
+               bl[c1].w=uvw[2]
+               bl[c1].prbl=sqrt(bl[c1].u*bl[c1].u+bl[c1].v*bl[c1].v)  
+
+               jump2:                        
+            endfor              ; integration
+         endif                  ; count
+      endfor                    ; sbs
+   endfor                       ; recs
+endfor                          ; baselines 
+
 result=dat_list(s_l,/reset)
 end
 

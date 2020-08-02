@@ -6,6 +6,27 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+
+Aug 2020: MIR update
+readdata.pro, dbi_head2_read2.pro, dbi_chan2_read2.pro,
+   dbi_chan2_read2int.pro, uti_respike.pro (modified)
+-- updated the header information for mir v3. data. 
+   fixed the "off by one" issue for all swarm data 
+      taken after 2016 June 2nd.
+   fixed the sky frequency problem caused by the
+      "off by one" issue.
+
+uti_avgband.pro, sma_cal_bas.pro, tsys_ant.pro, 
+   tsys_bsl.pro, tsys_replace.pro, uti_uvw_fix.pro (modified)
+-- updated with the new headers introduced for mir v3.data.
+
+plo_spec.pro (modified)
+-- adding c1 keyword to plot the spectral continuum data.
+
+apply_we.pro (modified)
+-- updated for refractivity calculation.
+
+
 May 2020: MIR update
 
 plo_page.pro, plo_spec.pro

@@ -1,4 +1,4 @@
-pro uti_avgband, all=all, band=band, old=old, swmch1=swmch1, swmch2=swmch2, zeroflag=zeroflag, excludefreq=excludefreq
+pro uti_avgband, all=all, band=band, old=old, swmch1=swmch1, swmch2=swmch2, zeroflag=zeroflag, excludefreq=excludefreq, c1_order=c1_order
 ;yes
 ;=Task:UTI_AVGBAND --- To create new continuum visibilities by averaging channel data.
 ;#Type: utility
@@ -72,14 +72,14 @@ if not keyword_set(old) then begin
       
       
    nch=sp[psl].nch
-   j=where(nch eq 1, count)
+   j=where(nch lt 10, count)
    if (count le 0) then begin
       print,' *** NO CONTINUUM BAND IN FILTER ! ***'
       print,' *** PLEASE RESET FILTER TO INCLUDE CONTINUUM BANDS ***'
       return
    endif
       
-   j=where(nch gt 1,count)
+   j=where(nch gt 10,count)
    if (count le 0) then begin
       print,' *** NO SPECTRUM BAND IN FILTER ! ***'
       print,' ***   PLEASE RESET THE FILTER !   ***'
@@ -108,7 +108,7 @@ if not keyword_set(old) then begin
    distinct_iband=uti_distinct(sp[psl].iband,nband,/many_repeat)
    nch=sp[psl].nch
 
-   icont=where(nch eq 1, count)
+   icont=where(nch lt 10, count)
    if (count le 0) then begin
       print,' *** NO CONTINUUM BAND IN FILTER ! ***'
       print,' ***   PLEASE RESET THE FILTER !   ***'
@@ -255,7 +255,10 @@ if not keyword_set(old) then begin
          if keyword_set(swmch1) and keyword_set(swmch2) then begin
             skip1[k]=swmch1-1
             skip2[k]=npts[k]-swmch2
-         endif
+         endif else begin
+            skip1[k]= fix( 1031.*npts[k]/16384. )
+            skip2[k]= fix( 1031.*npts[k]/16384. )
+         endelse
          swmfres=abs(sp[psl[k[0]+1]].fres)
          bw=total([npts[k]-skip1[k]-skip2[k]])*swmfres + (nb-nswp)*82.
          avgwt[*] = 82./bw
@@ -306,17 +309,23 @@ if not keyword_set(old) then begin
             cmp=cmp+avgwt[j]*total(ch[first[j]+skip1[j]:first[j]+npts[j]-skip2[j]-1])/(npts[j]-skip2[j]-skip1[j])
          endelse
       endfor
-      ch[pcl[icont[i]]]=cmp
-      oldfres=sp[psl[icont[i]]].fres
-      sp[psl[icont[i]]].fres=sp[psl[icont[i]]].fres/abs(sp[psl[icont[i]]].fres)*bw
-      sp[psl[icont[i]]].wt=sp[psl[icont[i]]].wt*abs(sp[psl[icont[i]]].fres/oldfres)
-      re.wts[prl[icont[i]]]=re.wts[prl[icont[i]]]*abs(sp[psl[icont[i]]].fres/oldfres)
-      sp[psl[icont[i]]].fsky=total(avgwt*sp[psl[icont[i]+1:icont[i]+nb]].fsky)
-      sp[psl[icont[i]]].vres=-1.*sp[psl[icont[i]]].fres/sp[psl[icont[i]]].fsky*!cvel/1e6
       uti_conv_apc,cmp,amp,pha,/amp_pha
       bl[pbl[icont[i]]].ampave=amp
       bl[pbl[icont[i]]].phaave=pha
-
+      if sp[psl[icont[i]]].nch gt 1 then begin
+         bl[pbl[icont[i]]].fave=total(avgwt*sp[psl[icont[i]+1:icont[i]+nb]].fsky)
+         bl[pbl[icont[i]]].bwave=bw
+         bl[pbl[icont[i]]].wtave=sp[psl[icont[i]]].wt*bw/abs(sp[psl[icont[i]]].fres)
+         if keyword_set(c1_order) then ch[pcl[icont[i]]+c1_order-1]=cmp
+      endif else begin
+         ch[pcl[icont[i]]]=cmp
+         oldfres=sp[psl[icont[i]]].fres
+         sp[psl[icont[i]]].fres=sp[psl[icont[i]]].fres/abs(sp[psl[icont[i]]].fres)*bw
+         sp[psl[icont[i]]].wt=sp[psl[icont[i]]].wt*abs(sp[psl[icont[i]]].fres/oldfres)
+         re.wts[prl[icont[i]]]=re.wts[prl[icont[i]]]*abs(sp[psl[icont[i]]].fres/oldfres)
+         sp[psl[icont[i]]].fsky=total(avgwt*sp[psl[icont[i]+1:icont[i]+nb]].fsky)
+         sp[psl[icont[i]]].vres=-1.*sp[psl[icont[i]]].fres/sp[psl[icont[i]]].fsky*!cvel/1e6
+      endelse
    endfor
 
 

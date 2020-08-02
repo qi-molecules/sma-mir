@@ -49,7 +49,7 @@ status = fstat(unit) & nbytes = long64(status.size)
 
 point_lun,unit,first_byte & readu,unit,sch
 ;if (strpos(!VERSION.ARCH,'86') ge 0) then $
-if endianFlag eq 1 then sch = swap_endian(sch)
+;if endianFlag eq 1 then sch = swap_endian(sch)
 
 if (nbytes lt ((sch.nbyt+8L)*(nints_expected+in_skip))) then begin
    print,'***DATA STRUCTURE CHANGED WITHIN THE TRACK! **********'
@@ -82,7 +82,7 @@ for j=0L,nread do begin
     data_sch=replicate(sch,nints_read)
     point_lun,unit,first_byte & readu,unit,data_sch
 ;    if (strpos(!VERSION.ARCH,'86') ge 0) then $
-    if endianFlag eq 1 then data_sch = swap_endian(data_sch)
+;    if endianFlag eq 1 then data_sch = swap_endian(data_sch)
 
     first_byte=first_byte+long64(8L+data_sch[0].nbyt)*nints_read
 
@@ -99,7 +99,6 @@ for j=0L,nread do begin
 
     dataoffs = long(sp[rows].dataOFF)/2L
     nchs = long(sp[rows].nch)
-    chstart=sp[rows].sphint1  
     wts=sp[spindx:spindx+npts-1].wt
     itgs=sp[spindx:spindx+npts-1].integ
     spindx=spindx+npts
@@ -133,8 +132,7 @@ for j=0L,nread do begin
         if nchs[i] ne nch_prev then lin_nch=lindgen(nchs[i])
         nch_prev=nchs[i]
 ;        ptr[iptr:iptr_end]=offsets[i]+lin_nch*2L+5L
-        ptr[iptr:iptr_end]=offsets[i]+lin_nch*2L+1L+chstart[i]*2L
-;        ptr[iptr:iptr_end]=offsets[i]+lin_nch*2L+1L
+        ptr[iptr:iptr_end]=offsets[i]+lin_nch*2L+1L
         tmp=scale[i,*]
         ptr_scale[iptr:iptr_end,*]=rebin(scale[i,*],(iptr_end-iptr+1),nints_read,/sample)
     endfor

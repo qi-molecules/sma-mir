@@ -28,7 +28,7 @@ pro apply_tsys
 common global
 common data_set
 
-if tag_exist(in,'inhdbl6') eq 0 then begin
+if tag_exist(in,'conid') then begin
 ; change Tsys to reflect SSB value, as well as correlator
 ; normalization factor of (2*pi)**0.5, and 130 Jy/K
 

@@ -122,7 +122,7 @@ for i=0,nants-2 do begin
              bl[pbf[loc]].csnr=tsysarray(*,i) 
              bl[pbf[loc]].cnoise=tsysarray(*,j) 
           endif else begin
-             bl[pbf[loc]].blhdbl3=tsysarray(*,i) 
+             bl[pbf[loc]].blhdbl5=tsysarray(*,i) 
              bl[pbf[loc]].blhdbl4=tsysarray(*,j) 
           endelse
         endif else begin
@@ -131,7 +131,7 @@ for i=0,nants-2 do begin
              bl[pbf[loc]].csnr=tsysarray(*,i) 
              bl[pbf[loc]].cnoise=tsysarray(*,j) 
           endif else begin
-             bl[pbf[loc]].blhdbl3=tsysarray(*,i) 
+             bl[pbf[loc]].blhdbl5=tsysarray(*,i) 
              bl[pbf[loc]].blhdbl4=tsysarray(*,j) 
           endelse
         endelse
@@ -147,7 +147,7 @@ print,"****************************************************************"
 endif else begin
 print,"****************************************************************"
 print,'FINISHED'
-print,'antenna (itel1) Tsys stored in bl[pbf].blhdbl3'
+print,'antenna (itel1) Tsys stored in bl[pbf].blhdbl5'
 print,'antenna (itel2) Tsys stored in bl[pbf].blhdbl4'
 print,"****************************************************************"  
 endelse

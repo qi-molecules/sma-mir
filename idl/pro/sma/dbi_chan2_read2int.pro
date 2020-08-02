@@ -95,7 +95,6 @@ for j=0L,nread-1 do begin
 
     dataoffs = long(sp[rows].dataOFF)/2L
     nchs = long(sp[rows].nch)
-    chstart=sp[rows].sphint1  
     wts=sp[spindx:spindx+npts-1].wt
     itgs=sp[spindx:spindx+npts-1].integ
     spindx=spindx+npts
@@ -129,8 +128,7 @@ for j=0L,nread-1 do begin
         if nchs[i] ne nch_prev then lin_nch=lindgen(nchs[i])
         nch_prev=nchs[i]
 ;        ptr[iptr:iptr_end]=offsets[i]+lin_nch*2L+5L
-        ptr[iptr:iptr_end]=offsets[i]+lin_nch*2L+1L+chstart[i]*2L
-;        ptr[iptr:iptr_end]=offsets[i]+lin_nch*2L+1L
+        ptr[iptr:iptr_end]=offsets[i]+lin_nch*2L+1L
         tmp=scale[i,*]
         ptr_scale[iptr:iptr_end,*]=rebin(scale[i,*],(iptr_end-iptr+1),nints_read,/sample)
     endfor

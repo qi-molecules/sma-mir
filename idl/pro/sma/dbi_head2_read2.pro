@@ -1,4 +1,4 @@
-function dbi_head2_read2,int_read=int_read,sideband=sideband, rx=rx, band_read=band_read,iblfix=iblfix, endianFlag=endianFlag, newwindows=newwindows, if1=if1, if2=if2, if3=if3, if4=if4, asic=asic, swarm=swarm, swmavg=swmavg, nbins=nbins, defaults=defaults
+function dbi_head2_read2,int_read=int_read,sideband=sideband, rx=rx, band_read=band_read,iblfix=iblfix, endianFlag=endianFlag, if1=if1, if2=if2, if3=if3, if4=if4, asic=asic, swarm=swarm, swmavg=swmavg, nbins=nbins, defaults=defaults
 common global
 common data_set
 
@@ -16,9 +16,9 @@ inh_temp={traid:0L,inhid:0L,$
          souid:0L,isource:0,ivrad:0,offx:0e,offy:0e,$
          ira:0,$
          idec:0,rar:0d,decr:0d,epoch:0e,size:0e,$
-         inhint1:0e,inhint2:0e,inhint3:0e,$
+         vrra:0e,vrdec:0e,lst:0e,$
          inhint4:0L,inhint5:0L,inhint6:0L,yigfreq1:0d,$
-         yigfreq2:0d,sflux:0d,inhdbl4:0d,inhdbl5:0d,inhdbl6:0d}
+         yigfreq2:0d,sflux:0d,ara:0d,adec:0d,mjd:0d}
 blh_temp={blhid:0L,inhid:0L,isb:0,ipol:0,$
          ant1rx:0,ant2rx:0,pointing:0,irec:0,$
          u:0e,v:0e,w:0e,prbl:0e,coh:0e,$
@@ -26,8 +26,8 @@ blh_temp={blhid:0L,inhid:0L,isb:0,ipol:0,$
          blsid:0L,itel1:0,itel2:0,ant1tsysoff:0L,ant2tsysoff:0L,$
          iblcd:0,ble:0e,$
          bln:0e,blu:0e,blhint1:0L,blhint2:0L,blhint3:0L,$
-         blhint4:0L,blhint5:0L,blhint6:0L,blhdbl1:0d,$
-         blhdbl2:0d,blhdbl3:0d,blhdbl4:0d,blhdbl5:0d,blhdbl6:0d}
+         blhint4:0L,blhint5:0L,blhint6:0L,fave:0d,$
+         bwave:0d,wtave:0d,blhdbl4:0d,blhdbl5:0d,blhdbl6:0d}
 sph_temp={sphid:0L,blhid:0L,inhid:0L,igq:0,ipq:0,iband:0,$
          ipstate:0,tau0:0e,vel:0d,vres:0e,fsky:0d,$
          fres:0e,gunnlo:0d,cabinlo:0d,corrlo1:0d,corrlo2:0d,$
@@ -55,10 +55,10 @@ if e.debug then print,inrows,' inh rows'
 in = replicate(inh_temp,inrows)
 point_lun,unit,0L
 readu,unit,in
-if in[0].epoch ne 2000 then endianFlag=1
+;if in[0].epoch ne 2000 then endianFlag=1
 
 ;if (strpos(!VERSION.ARCH,'86') ge 0) or (strpos(!VERSION.ARCH,'alpha') ge 0) then $
-if endianFlag eq 1 then in = swap_endian(in)
+;if endianFlag eq 1 then in = swap_endian(in)
 ;
 close,unit & free_lun,unit
 openr,unit,e.idl_bcp+'bl_read',/get_lun,error=err
@@ -76,7 +76,7 @@ bl = replicate(blh_temp,nrows)
 point_lun,unit,0L
 readu,unit,bl
 ;if (strpos(!VERSION.ARCH,'86') ge 0) or (strpos(!VERSION.ARCH,'alpha') ge 0) then $
-if endianFlag eq 1 then bl = swap_endian(bl)
+;if endianFlag eq 1 then bl = swap_endian(bl)
 ;
 close,unit & free_lun,unit
 openr,unit,e.idl_bcp+'sp_read',/get_lun,error=err
@@ -94,13 +94,13 @@ sp = replicate(sph_temp,nrows)
 point_lun,unit,0L
 readu,unit,sp
 ;if (strpos(!VERSION.ARCH,'86') ge 0) or (strpos(!VERSION.ARCH,'alpha') ge 0) then $
-if endianFlag eq 1 then sp = swap_endian(sp)
+;if endianFlag eq 1 then sp = swap_endian(sp)
 ;
 close,unit & free_lun,unit
 iband_distinct=uti_distinct(sp.iband,nbands,/many_repeat)
 iband_order=sp[0:nbands-1].iband
 ; setup for nbins
-if (keyword_set(swmavg) or keyword_set(newwindows)) then begin
+if keyword_set(swmavg) then begin
    nbins=intarr(nbands)+1
    if keyword_set(swmavg) then begin
       result=uti_distinct(sp.sphint1,/many,ntmp)
@@ -120,11 +120,6 @@ if (keyword_set(swmavg) or keyword_set(newwindows)) then begin
       endelse
    endif
 ;   print,nbins
-   if keyword_set(newwindows) then begin
-      temp=size(newwindows)
-      if temp[0] eq 1 then nwindows=1 else nwindows=temp[2]
-      for jtmp=0, nwindows-1 do nbins=[nbins,newwindows[jtmp*4+3]]
-   endif
 endif else nbins=0
 
 ;print,'NBINS:'
@@ -132,52 +127,6 @@ endif else nbins=0
 ;print,nbins
 
 ;bw=(nbands-1)*82.
-
-if keyword_set(newwindows) then begin
-
-   temp=size(newwindows)
-   if temp[0] eq 1 then nwindows=1 else nwindows=temp[2]
-;   windows='s'+strcompress(string(indgen(nwindows)+nbands),/remove)
-   windows='s'+strcompress(string(indgen(nwindows)+51),/remove)
-   ns=nrows/nbands
-   sp=reform(sp,nbands,ns)
-   for i=0, nwindows-1 do begin
-;  w_select is the selected chunk to extract data
-;  w_chstart is the start channel starting with number 1
-;  w_chend  is the end channel
-;  w_nch is the number of channels in the new window
-;  newsp.nch=w_chend-w_chstart+1
-;  fsky channel value= (w_chend+w_chstart)/2.
-;  newsp.fsky=newsp.fsky+(w_chend+wchstart-newsp.nch-1)/2.*newsp.fres
-      itemp=where(iband_order eq newwindows[0,i], count)
-      if (count eq 0) then begin
-         print,'***************************'
-         print,'Wrong windows setup, Quit !'
-         print,'***************************'
-         stop
-         return,0
-      endif
-;      w_select=newwindows[0,i]
-      w_select=itemp
-      print,'W_SELECT:'
-      print,w_select
-      w_chstart=newwindows[1,i]
-      w_nch=newwindows[2,i]-newwindows[1,i]+1
-      newsp=sp[w_select,*]
-;      newsp.iband=nbands+i
-      newsp.iband=max(iband_distinct)+1+i
-      newsp.fsky=newsp.fsky+0.001*(w_nch+2*w_chstart-newsp.nch-2)/2.*newsp.fres
-      newsp.vel=newsp.vel+0.001*(w_nch+2*w_chstart-newsp.nch-2)/2.*newsp.vres
-      newsp.nch=w_nch
-;      newsp.dataoff=newsp.dataoff+(w_chstart-1L)*2L
-      newsp.sphint1=w_chstart-1 ; mir data channel number start with 0
-      sp=[sp,newsp]
-   endfor
-   sp=reform(sp,(nbands+nwindows)*ns)
-   sp.sphid=lindgen((nbands+nwindows)*ns)+1L
-
-endif
-
 
 openr,unit,e.idl_bcp+'codes_read',/get_lun,error=err
 if err ne 0 then begin
@@ -238,10 +187,10 @@ for i=0L,(nrows-1L) do  begin
 
 ;  if (strpos(!VERSION.ARCH,'86') ge 0) or
 ;  (strpos(!VERSION.ARCH,'alpha') ge 0) then begin
-  if endianFlag eq 1 then begin
-     code_temp.icode = swap_endian(code_temp.icode)
-     code_temp.ncode = swap_endian(code_temp.ncode)
-  endif
+;  if endianFlag eq 1 then begin
+;     code_temp.icode = swap_endian(code_temp.icode)
+;     code_temp.ncode = swap_endian(code_temp.ncode)
+;  endif
 ; print,code_temp
 ; stop,code_temp
   result = execute('difd='+string(code_temp.icode)+ $

@@ -1,7 +1,9 @@
 function plo_spec,x_var,y_vars,frame_vars,color_vars, $
      symbol_vars,frames_per_page,source=source,plid,$
-     ntrim_max=ntrim_max,wntrim=wntrim,user_pt=user_pt,user_line=user_line, $
-     unwrap=unwrap, normalize=normalize, preavg=preavg, smoothing=smoothing, intavg=intavg, pha_max=pha_max, pha_min=pha_min, print=print, specfile=specfile
+     ntrim_max=ntrim_max,wntrim=wntrim,user_pt=user_pt,$
+     user_line=user_line, unwrap=unwrap, normalize=normalize, $
+     preavg=preavg, smoothing=smoothing, intavg=intavg, pha_max=pha_max, $
+     pha_min=pha_min, print=print, specfile=specfile, c1=c1
 ;
 ; Spectrum (amp, phase) plotting for all sources in current filter
 ;
@@ -67,7 +69,7 @@ endif
 ; first set up local arrays w/ the desired amp, pha for each source 
 ; for the data passing through the filter
 ;
-result=dat_list(s_l,'"band" like "s"',/reset,/no)
+if not keyword_set(c1) then result=dat_list(s_l,'"band" like "s"',/reset,/no)
 
 if not keyword_set(source) then begin
   sources=c.source(in(pil).isource)
@@ -78,8 +80,12 @@ endif else distinct_sources=source
 ; whatever source was specified in call statement
 ;
 for js=0,n_elements(distinct_sources)-1 do begin
+  if not keyword_set(c1) then $
   result=dat_list(s_l,'"band" like "s" and "source" like "'+ $
-                  distinct_sources(js)+'"',/reset,/no_notify)
+                  distinct_sources(js)+'"',/reset,/no_notify) $ 
+  else result=dat_list(s_l,'"source" like "'+ $
+                  distinct_sources(js)+'"',/reset,/no_notify) 
+
   if result le 0 then begin
     print,'No data for spectrum of ',distinct_sources(js)
     goto, end_sources
@@ -105,8 +111,12 @@ for js=0,n_elements(distinct_sources)-1 do begin
 
       print,"Plotting integration(s) between ",intmin, " and ",(intflag -1), " on source ",distinct_sources(js)
 
-      result=dat_list(s_l,'"band" like "s" and "source" like "'+distinct_sources(js)+ $
-                    '" and "int" ge "'+string(intmin)+'" and "int" lt "'+string(intflag)+'"',/reset,/no_notify)
+      if not keyword_set(c1) then result=dat_list(s_l,'"band" like "s" and "source" like "'+ $
+            distinct_sources(js)+ '" and "int" ge "'+string(intmin)+'" and "int" lt "'+ $
+            string(intflag)+'"',/reset,/no_notify) $
+      else result=dat_list(s_l,'"source" like "'+ $
+            distinct_sources(js)+ '" and "int" ge "'+string(intmin)+'" and "int" lt "'+ $
+            string(intflag)+'"',/reset,/no_notify)
 
       result=dat_list(s_l,/save,/no_notify)
       ;

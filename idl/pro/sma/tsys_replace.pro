@@ -31,21 +31,6 @@ if not keyword_set(factor) then factor=1.
 
 result=dat_filter(s_f,/reset,/no_notify)
 
-if newformat eq 0 then begin
-   if (bl[pbf[0]].csnr le 40.) or (bl[pbf[0]].cnoise le 40.) then begin
-      print,'You need run tsys_ant first before using this program.'
-      print,'Quit !'
-      return
-   endif
-endif else begin
-   if (bl[pbf[0]].blhdbl3 le 40.) or (bl[pbf[0]].blhdbl4 le 40.) then begin
-      print,'You need run tsys_ant first before using this program.'
-      print,'Quit !'
-      return
-   endif
-endelse
-
-
 ; In case of dual-frequency data sets
 allfreq=bl[pbf].irec
 freqs=allfreq(uniq(allfreq, sort(allfreq)))
@@ -61,6 +46,21 @@ if nfreq gt 1 then begin
   freqstr='"irec" eq "'+string(freq)+'"'
   result=dat_filter(s_f,freqstr,/no_notify)
 endif
+
+if newformat eq 0 then begin
+   if (bl[pbf[0]].csnr le 40.) or (bl[pbf[0]].cnoise le 40.) then begin
+      print,'You need run tsys_ant first before using this program.'
+      print,'Quit !'
+      return
+   endif
+endif else begin
+   if (bl[pbf[0]].blhdbl5 le 40.) or (bl[pbf[0]].blhdbl4 le 40.) then begin
+      print,'You need run tsys_ant first before using this program.'
+      print,'Quit !'
+      return
+   endif
+endelse
+
 
 ; setting up: finding out which antennas are in the array
 subset1=bl[pbf].itel1
@@ -85,7 +85,7 @@ endif else begin
      print,'Failed!'
      return
   endif
-  if newformat eq 0 then tgood=bl[pbf[loc]].csnr else tgood=bl[pbf[loc]].blhdbl3
+  if newformat eq 0 then tgood=bl[pbf[loc]].csnr else tgood=bl[pbf[loc]].blhdbl5
 endelse
 
 ; looping through baselines and replacing badant values with goodant values
@@ -100,7 +100,7 @@ for i=0,nants-2 do begin
       return
     endif
     if ants(i) eq badant then begin 
-       if newformat eq 0 then bl[pbf[loc]].csnr=tgood*factor else bl[pbf[loc]].blhdbl3=tgood*factor
+       if newformat eq 0 then bl[pbf[loc]].csnr=tgood*factor else bl[pbf[loc]].blhdbl5=tgood*factor
     endif
     if ants(j) eq badant then begin
        if newformat eq 0 then bl[pbf[loc]].cnoise=tgood*factor else bl[pbf[loc]].blhdbl4=tgood*factor
