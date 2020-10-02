@@ -4053,7 +4053,7 @@ case site of
 			lat = 19.82420526391d0 ; Pad #1
                         result=dat_list(s_l,'("band" eq "c1") and ("sb" eq "'+strtrim(sb[0],2)+'")',/reset,/no_notify)
                         if result gt 0 then begin
-                           fc1=sp[psl[0]].fsky*1.d9
+                           if sp[psl[0]].nch eq 1 then  fc1=sp[psl[0]].fsky*1.d9 else fc1=bl[pbl[0]].fave*1.d9
                         endif else begin
                            print,'Should include continuum band in the data selection command !'
                            print,'No data output. Quit !'
@@ -4184,6 +4184,7 @@ n_elements(rfreq),n_elements(fres),n_elements(vel),n_elements(psl)
 ;scalars
 nch=sp[psl[0]].nch
 if nch eq 1 then rfreq=sp[psl].fsky
+
 ;vtype=c.vtype[sp[psl[0]].ivtype]
 vtype='vlsr' ; turn off vtype reading for sma new data format.
 

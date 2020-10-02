@@ -1,4 +1,4 @@
-pro readtsys2, dir=dir, rx=rx, sideband=sideband, replace=replace
+pro readtsys2, dir=dir, rx=rx, sideband=sideband, replace=replace, spectsys=spectsys
 
 common global
 common data_set
@@ -81,10 +81,15 @@ for i=0L,nint-1L do begin
    first_byte=bl[pbf[tmp_idx[ibsl[0]]]].ant1tsysoff
    point_lun,unit,first_byte
    readu,unit,nM
-   if nM gt 2 then begin
-      print,'************* More than ',nM,' TSYS measurements'
-      print,'************* Need to check the routine. Quit !'
-      return
+   if nM gt 2 and not keyword_set(spectsys) then begin
+   ;   print,'************* More than ',nM,' TSYS measurements'
+   ;   print,'************* Need to check the routine. Quit !'
+   ;   return
+       print,'Spectral tsys reading not ready !'
+       print,'Switching to tsys reading from eng_read:'
+       readtsys_eng,dir=dir
+       print,'Tsys reading from ENG_READ is done!'
+       return
    endif
    data=fltarr(4,nM)
    tsys_temp={itel:0,tssb:fltarr(nM)}
@@ -92,9 +97,15 @@ for i=0L,nint-1L do begin
    readu,unit,data
                                 ; for normal data, nM=2 (both IFs or RXs):
                                 ; data[2,*] for lsb and data[3,*] for usb
-
+;print,data[2,*]
+;print,data[3,*]
+;read,iii
    tsys[0].itel=bl[pbf[tmp_idx[ibsl[0]]]].itel1
-   tsys[0].tssb=data[2,*] ; assuming data[2,*] (lsb) = data[3,*] (usb)
+   tmp_tsys=data[2,*]
+   tmpi=where(tmp_tsys eq 0,count)
+   if count gt 0 then tmp_tsys[tmpi]=99999.
+   tsys[0].tssb=tmp_tsys
+;   tsys[0].tssb=data[2,*] ; assuming data[2,*] (lsb) = data[3,*] (usb)
    for iant=1, nants-1 do begin
       first_byte=bl[pbf[tmp_idx[ibsl[iant-1]]]].ant2tsysoff
       point_lun,unit,first_byte
@@ -102,9 +113,12 @@ for i=0L,nint-1L do begin
       data=fltarr(4,nM)
       readu,unit,data
       tsys[iant].itel=bl[pbf[tmp_idx[ibsl[iant-1]]]].itel2
-      tsys[iant].tssb=data[2,*] ; assuming data[2,*] (lsb) = data[3,*] (usb)
+      tmp_tsys=data[2,*]
+      tmpi=where(tmp_tsys eq 0,count)
+      if count gt 0 then tmp_tsys[tmpi]=99999.
+      tsys[iant].tssb=tmp_tsys
+;      tsys[iant].tssb=data[2,*] ; assuming data[2,*] (lsb) = data[3,*] (usb)
    endfor
-
 ; done with tsys reading, change tsys for replacement if necessary
 
    if badant then begin
@@ -129,40 +143,91 @@ for i=0L,nint-1L do begin
             ; double rx
             loc=where(bl[pbl[tmp_idx]].itel1 eq ants[j] and bl[pbl[tmp_idx]].itel2 eq ants[k] and bl[pbl[tmp_idx]].irec eq distinct_irec[0], count)
             if count gt 0 then begin
-               jj=where(tsys.itel eq ants[j])
-               tmpj=(tsys[jj].tssb[0] gt 0) ? tsys[jj].tssb[0]: 99999.
-               kk=where(tsys.itel eq ants[k])
-               tmpk=(tsys[kk].tssb[0] gt 0) ? tsys[kk].tssb[0]: 99999.
-               sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+               if nM eq 2 then begin
+                  jj=where(tsys.itel eq ants[j],nbands)
+                  tmpj=(tsys[jj].tssb[0] gt 0) ? tsys[jj].tssb[0]: 99999.
+                  kk=where(tsys.itel eq ants[k])
+                  tmpk=(tsys[kk].tssb[0] gt 0) ? tsys[kk].tssb[0]: 99999.
+                  sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+               endif else begin
+                  jj=where(tsys.itel eq ants[j],nbands)
+                  tmpj=tsys[jj].tssb[0:nM/2-1]
+                  tmpj=[mean(tmpj),tmpj]
+		  tmpj=[tmpj,tmpj]
+                  kk=where(tsys.itel eq ants[k])
+                  tmpk=tsys[kk].tssb[0:nM/2-1]
+                  tmpk=[mean(tmpk),tmpk]
+                  tmpk=[tmpk,tmpk]
+                  sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+               endelse
             endif           
             loc=where(bl[pbl[tmp_idx]].itel1 eq ants[j] and bl[pbl[tmp_idx]].itel2 eq ants[k] and bl[pbl[tmp_idx]].irec eq distinct_irec[1], count)
             if count gt 0 then begin
-               jj=where(tsys.itel eq ants[j])
-               tmpj=(tsys[jj].tssb[1] gt 0) ? tsys[jj].tssb[1]: 99999.
-               kk=where(tsys.itel eq ants[k])
-               tmpk=(tsys[kk].tssb[1] gt 0) ? tsys[kk].tssb[1]: 99999.
-               sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
-            endif                       
-         endif else begin
-            ; rx =400
-            if float(rx) eq 400 or float(rx) eq 240 then begin
-               loc=where(bl[pbl[tmp_idx]].itel1 eq ants[j] and bl[pbl[tmp_idx]].itel2 eq ants[k], count)
-               if count gt 0 then begin
+               if nM eq 2 then begin
                   jj=where(tsys.itel eq ants[j])
                   tmpj=(tsys[jj].tssb[1] gt 0) ? tsys[jj].tssb[1]: 99999.
                   kk=where(tsys.itel eq ants[k])
                   tmpk=(tsys[kk].tssb[1] gt 0) ? tsys[kk].tssb[1]: 99999.
                   sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+               endif else begin
+                  jj=where(tsys.itel eq ants[j],nbands)
+                  tmpj=tsys[jj].tssb[nM/2:nM-1]
+                  tmpj=[mean(tmpj),tmpj]
+                  tmpj=[tmpj,tmpj]
+                  kk=where(tsys.itel eq ants[k])
+                  tmpk=tsys[kk].tssb[nM/2:nM-1]
+                  tmpk=[mean(tmpk),tmpk]
+                  tmpk=[tmpk,tmpk]
+                  sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+               endelse
+            endif
+                       
+         endif else begin
+            ; rx =400
+            if float(rx) eq 400 or float(rx) eq 240 then begin
+               loc=where(bl[pbl[tmp_idx]].itel1 eq ants[j] and bl[pbl[tmp_idx]].itel2 eq ants[k], count)
+               if count gt 0 then begin
+                  if nM eq 2 then begin
+                     jj=where(tsys.itel eq ants[j])
+                     tmpj=(tsys[jj].tssb[1] gt 0) ? tsys[jj].tssb[1]: 99999.
+                     kk=where(tsys.itel eq ants[k])
+                     tmpk=(tsys[kk].tssb[1] gt 0) ? tsys[kk].tssb[1]: 99999.
+                     sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+                  endif else begin
+                     jj=where(tsys.itel eq ants[j],nbands)
+                     tmpj=tsys[jj].tssb[nM/2:nM-1]
+                     tmpj=[mean(tmpj),tmpj]
+                     tmpj=[tmpj,tmpj]
+                     kk=where(tsys.itel eq ants[k])
+                     tmpk=tsys[kk].tssb[nM/2:nM-1]
+                     tmpk=[mean(tmpk),tmpk]
+                     tmpk=[tmpk,tmpk]
+                     sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+                  endelse
                endif
             endif else begin
                ; single rx
                loc=where(bl[pbl[tmp_idx]].itel1 eq ants[j] and bl[pbl[tmp_idx]].itel2 eq ants[k] and sp[psl[tmp_idx]].iband le 24, count)
                if count gt 0 then begin
-                  jj=where(tsys.itel eq ants[j])
-                  tmpj=(tsys[jj].tssb[0] gt 0) ? tsys[jj].tssb[0]: 99999.
-                  kk=where(tsys.itel eq ants[k])
-                  tmpk=(tsys[kk].tssb[0] gt 0) ? tsys[kk].tssb[0]: 99999. 
-                  sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+
+                  if nM eq 2 then begin
+                     jj=where(tsys.itel eq ants[j],nbands)
+                     tmpj=(tsys[jj].tssb[0] gt 0) ? tsys[jj].tssb[0]: 99999.
+                     kk=where(tsys.itel eq ants[k])
+                     tmpk=(tsys[kk].tssb[0] gt 0) ? tsys[kk].tssb[0]: 99999.
+                     sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+                  endif else begin
+                     jj=where(tsys.itel eq ants[j],nbands)
+                     tmpj=tsys[jj].tssb[0:nM/2-1]
+                     tmpj=[mean(tmpj),tmpj]
+                     tmpj=[tmpj,tmpj]
+                     kk=where(tsys.itel eq ants[k])
+                     tmpk=tsys[kk].tssb[0:nM/2-1]
+                     tmpk=[mean(tmpk),tmpk]
+                     tmpk=[tmpk,tmpk]
+                     sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+                  endelse
+
                endif
                loc=where(bl[pbl[tmp_idx]].itel1 eq ants[j] and bl[pbl[tmp_idx]].itel2 eq ants[k] and sp[psl[tmp_idx]].iband gt 24, count)
                if count gt 0 then begin

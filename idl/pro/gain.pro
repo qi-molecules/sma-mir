@@ -249,7 +249,7 @@ endif
        phas=uti_pha_180 (bl(pbl).phaave )
     endelse
     cohs=bl(pbl).coh
-    wts=sp(psl).wt
+    if sp[psl[0]].nch eq 1 then wts=sp(psl).wt else wts=bl[pbl].wtave
 
   endif else begin
 
@@ -267,7 +267,7 @@ endif
 
     uti_conv_apc, linedata, amps, phas, /amp_pha
     cohs=bl(pbl).coh
-    wts=sp(psl).wt
+    if sp[psl[0]].nch eq 1 then wts=sp(psl).wt else wts=bl[pbl].wtave
 
   endelse
 
@@ -457,14 +457,19 @@ for j=0,n_elements(gai_souids)-1 do begin
     endif
     if ((non_point gt 0.) and (in[pil[kkk[0]]].size gt 0.)) then begin
       uvdis=sqrt(bl[pbl].u^2 + bl[pbl].v^2)
-      radius = in[pil].size / 2.0 
-      bw     = sp[psl].fres
-      freq   = sp[psl].fsky    
+      radius = in[pil].size / 2.0
+      if sp[psl[0]].nch eq 1 then begin 
+         bw     = sp[psl].fres
+         freq   = sp[psl].fsky
+      endif else begin
+         bw     = bl[pbl].bwave
+         freq   = bl[pbl].fave
+      endelse    
       datatime = mJD+in[pil].dhrs/24.
       if keyword_set(orig_flux) then res = flux_primary(strlowcase(c.source[gai_souids[j]]),radius,freq,xflux) else res=flux_casa(strlowcase(c.source[gai_souids[j]]),radius,freq,bw,datatime,xflux) 
 ;      kkk=where(in[pil].souid eq gai_souids[j])
       result=uti_gaussqs(uvdis(kkk),radius(kkk),freq(kkk),vis)
-      if res lt 0. then begin
+      if res le 0. then begin
          print,'***************************************'
          print,'***************************************'
          print,' Warning: No internal flux model for **'

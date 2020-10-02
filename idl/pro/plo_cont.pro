@@ -77,7 +77,7 @@ case cont_data of
                 amps=bl[pbl].blhdbl6 & phas=bl[pbl].blhdbl5
              endelse
           endif
-          wts=sp(psl).wt
+          if sp[psl[0]].nch eq 1 then wts=sp(psl).wt else wts=bl[pbl].wtave 
           tssb=sp[psl].tssb  ; %% added by KS %%
 ;
 ; plot coherence only for data amp > 0.4

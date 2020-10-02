@@ -9,6 +9,10 @@ common data_set
 
 if tag_exist(bl,'iaq') ne 0 then newformat=0 else newformat=1
 
+; set continuum nch to 1 temporarily
+select,/p,/re,band='c1'
+sp[psf].nch=1
+
 if keyword_set(swarm) then select,/p,/re,/swarm
 if keyword_set(asic) then select,/p,/re,/asic
 if (not keyword_set(swarm)) and (not keyword_set(asic)) then select,/p,/re

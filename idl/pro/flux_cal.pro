@@ -77,7 +77,11 @@ function flux_cal,sources,flux_inp,channel,$
       el    = in[pil].el
 
     ; Set weights
-      wts = (iweight) ?  sp[psl].wts > 0.0 : replicate(1.0,ndata)
+      if sp[psl[0]].nch eq 1 then begin
+         wts = (iweight) ?  sp[psl].wts > 0.0 : replicate(1.0,ndata)
+      endif else begin
+         wts = (iweight) ?  bl[pbl].wtave > 0.0 : replicate(1.0,ndata)
+      endelse
 
     ; Normalize amplitudes and weights by coherence, if necesary
       xfactor = 1.0

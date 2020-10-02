@@ -106,7 +106,11 @@ function flux_scale,sources,channel,flux_inp=flux_inp,$
       el    = in[pil].el
 
     ; Set weights
-      wts = (iweight) ?  sp[psl].wts > 0.0 : replicate(1.0,ndata)
+      if sp[psl[0]].nch eq 1 then begin
+         wts = (iweight) ?  sp[psl].wts > 0.0 : replicate(1.0,ndata)
+      endif else begin
+         wts = (iweight) ?  bl[pbl].wtave > 0.0 : replicate(1.0,ndata)
+      endelse
 
     ; Normalize amplitudes and weights by coherence, if necesary
       xfactor = 1.0
@@ -121,8 +125,13 @@ function flux_scale,sources,channel,flux_inp=flux_inp,$
     ; Store source parameters. If source is primary flux calibrator,
     ; then re-determine the flux. Otherwise, just adopt the input flux.
       radius = in[pil].size / 2.0
-      freq   = sp[psl].fsky
-      bw     = sp[psl].fres
+      if sp[psl[0]].nch eq 1 then begin
+         freq   = sp[psl].fsky
+         bw     = sp[psl].fres
+      endif else begin
+         freq   = bl[pbl].fave
+         bw     = bl[pbl].bwave
+      endelse
       datatime = mJD+in[pil].dhrs/24.
       flux   = fltarr(ndata)
       for i = 0L, n_elements(sources)-1L do begin

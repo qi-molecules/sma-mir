@@ -1,4 +1,4 @@
-pro readdata,directory=directory, newformat=newformat,int_read=int_read, skip=skip, full=full, sideband=sideband, rx=rx, band_read=band_read, old=old, if1=if1, if2=if2, if3=if3, if4=if4, asic=asic, swarm=swarm, swmavg=swmavg, nopolcor=nopolcor, defaults=defaults
+pro readdata,directory=directory, newformat=newformat,int_read=int_read, skip=skip, full=full, sideband=sideband, rx=rx, band_read=band_read, old=old, if1=if1, if2=if2, if3=if3, if4=if4, asic=asic, swarm=swarm, swmavg=swmavg, nopolcor=nopolcor, spectsys=spectsys, defaults=defaults
 ;yes
 ;=Task:READDATA --- To read data from specified directory
 ;#Type: i/o
@@ -156,7 +156,7 @@ if keyword_set(directory) then begin
 ; setting flags and filling tsys info, holder for bw info for old data
 if newformat ne 0 then begin
 ;   uti_tsys
-   readtsys2, rx=rx, sideband=sideband
+   readtsys2, rx=rx, sideband=sideband, spectsys=spectsys
    res=dat_filter(s_f,'"flags" ne "0"',/reset,/no_notify)
    if res gt 0 then sp[psf].wt=-1
    res=dat_filter(s_f,/reset,/no_notify)
@@ -482,10 +482,17 @@ if (not keyword_set(nopolcor)) and (npol eq 4) then begin
    endif
 endif
 
-if newformat then res=dat_filter(s_f,'"sphint1" eq "1" or "iband" ge "49"',/no_notify,/reset) else res=dat_filter(s_f,'"iband" ge "49"',/no_notify,/reset)
-if res gt 0 then sp[psf].fsky = sp[psf].fsky - (signum(sp[psf].fres)*139.648e-6)
+if newformat ne 0 then res=dat_filter(s_f,'"sphint1" eq "1" or "iband" ge "49"',/no_notify,/reset) else res=dat_filter(s_f,'"iband" ge "49"',/no_notify,/reset)
+if res gt 0 then begin
+   sp[psf].fsky = sp[psf].fsky - (signum(sp[psf].fres)*139.648e-6)
+   sp[psf].vel=sp[psf].vel-abs(139.648e-3/sp[psf].fres) * sp[psf].vres
+endif
 
 
-res=dat_filter(s_f,/reset,/no_notify)
+res=dat_filter(s_f,'"wt" gt "0"',/reset,/no_notify)
+uti_avgband
+
+print,'Continuum band c1 has been regenerated.'
+;res=dat_filter(s_f,/reset,/no_notify)
 
 end

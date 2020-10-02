@@ -6,6 +6,21 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+Oct 2020: MIR update:
+
+readdata.pro (modified)
+-- off by one channel fix, adding spectsys keyword, adding 
+   uti_avgband at end.
+
+readtsys_eng.pro, readeng.pro (added)
+-- reading in eng tsys information.
+
+plo_cont.pro, flux_cal.pro, fits_out.pro, gain.pro,
+   uti_xgain.pro, flux_scale.pro, gain_sideband.pro (modified)
+-- mir v3 update
+
+uti_c1_fix.pro (added)
+-- fix spectral continuum c1 if necessary.
 
 Aug 2020: MIR update
 readdata.pro, dbi_head2_read2.pro, dbi_chan2_read2.pro,
