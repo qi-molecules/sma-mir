@@ -102,7 +102,7 @@ endif else begin
                ;tmp[1:nband,*]=tmpk
                ;tmpk2=reform(tmp,dnband)
          
-               sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj[0]*tmpk[0])
+               sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj[0]*tmpk[0])*2.
             endif
 
 
@@ -120,7 +120,7 @@ endif else begin
                ;tmp[1:nband,*]=tmpk
                ;tmpk2=reform(tmp,dnband)
 
-               sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj[0]*tmpk[0])
+               sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj[0]*tmpk[0])*2.
             endif
 
 
