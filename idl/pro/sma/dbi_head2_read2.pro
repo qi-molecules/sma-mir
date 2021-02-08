@@ -34,9 +34,9 @@ sph_temp={sphid:0L,blhid:0L,inhid:0L,igq:0,ipq:0,iband:0,$
          integ:0e,wt:0e,flags:0L,vradcat:0e,$
          nch:0,nrec:0,dataOFF:0L,$
          rfreq:0d,corrblock:0,corrchunk:0,$
-         sphint1:0L,sphint2:0L,sphint3:0L,$
+         sphint1:0L,iddsmode:0,sphshort:0,sphint3:0L,$
          sphint4:0L,sphint5:0L,sphint6:0L,tssb:0d,$
-         sphdbl2:0d,sphdbl3:0d,sphdbl4:0d,sphdbl5:0d,sphdbl6:0d}
+         fdds:0d,sphdbl3:0d,sphdbl4:0d,sphdbl5:0d,sphdbl6:0d}
 code_temp={v_name:'123456789012',icode:0, $
            code:'12345678901234567890123456',ncode:0}
 ;
@@ -173,6 +173,7 @@ filever= strarr(1)
 svtype=strarr(1)
 stype = strarr(1)
 project=strarr(1)
+ddsmode=strarr(1)
 
 aa = bytarr(42)
 point_lun,unit,0L
@@ -239,6 +240,7 @@ for i=0L,(nrows-1L) do  begin
        'svtype' : svtype(code_temp.icode)=strtrim(code_temp.code,2L)
        'stype' : stype(code_temp.icode)=strtrim(code_temp.code,2L)
        'project': project(code_temp.icode)=strtrim(code_temp.code,2L)       
+       'ddsmode': ddsmode(code_temp.icode)=strtrim(code_temp.code,2L)
        else : print,strtrim(code_temp.v_name,2L),' not recognized !'
   endcase         
 endfor
@@ -261,11 +263,11 @@ if e.debug then print,'sph# ',sp(0).sphid,' => ',sp(n_elements(sp)-1).sphid
     icode_s=['in','in','bl', $
              'bl','bl','bl','bl','bl', $
              'sp','sp','sp','sp', $
-             'in','in','in','in']
+             'in','in','in','in','sp']
     icode_tag=['iut','iref_time','isb', $
                'ipol', 'irec','itel1','itel2','iblcd', $
                'igq','ipq','iband','ipstate', $
-               'isource','ivrad','ira','idec']
+               'isource','ivrad','ira','idec','iddsmode']
 
 ; icode_s and icode_tag must come last in the structure
 
@@ -275,7 +277,7 @@ c = { $
      gq:gq,pq:pq,band:band,pstate:pstate,$
      source:source,vrad:vrad,ra:ra,dec:dec,$
      filever:filever,stype:stype,svtype:svtype,project:project,$
-     icode_s:icode_s,icode_tag:icode_tag}
+     ddsmode:ddsmode,icode_s:icode_s,icode_tag:icode_tag}
 
 if keyword_set(newwindows) then begin
    

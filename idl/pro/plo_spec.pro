@@ -226,6 +226,12 @@ for js=0,n_elements(distinct_sources)-1 do begin
         if keyword_set(preavg) then begin
            if x_var eq 'fsky' then begin
               chavg=ceil(preavg/abs(sp[psl[0]].fres))
+              if preavg lt abs(sp[psl[0]].fres) then begin
+                 print,'*** WARNING ***'
+                 print,'*** Keyword PREAVG in MHz is smaller than the spectral resolution !'
+                 print,'*** No spectral averaging is done.'
+                 print,'*** WARNING ***'
+              endif
            endif else begin
               chavg=long(preavg)
            endelse
@@ -355,10 +361,16 @@ for js=0,n_elements(distinct_sources)-1 do begin
         cmp=cmp[ntrim:npts[0]-ntrim-1]
         npts=npts-2*ntrim
         if keyword_set(preavg) then begin
-           if x_var eq 'channel' then begin
-              chavg=long(preavg)
-           endif else begin
+           if x_var eq 'fsky' then begin
               chavg=ceil(preavg/abs(sp[psl[0]].fres))
+              if preavg lt abs(sp[psl[0]].fres) then begin
+                 print,'*** WARNING ***'
+                 print,'*** Keyword PREAVG in MHz is smaller than the spectral resolution !'
+                 print,'*** No spectral averaging is done.'
+                 print,'*** WARNING ***'
+              endif
+           endif else begin
+              chavg=long(preavg)
            endelse
            new_npts=floor(npts/float(chavg))
            newx=make_array(new_npts,/float)

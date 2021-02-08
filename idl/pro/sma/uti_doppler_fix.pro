@@ -49,6 +49,12 @@ if count ge 1 then begin
    refDec=dectab[i[0]]
 endif else reflag=0
 
+if c.filever[0] ge 3 then begin 
+   reflag=1
+   refRA=in[pif[0]].vrra
+   refDec=in[pif[0]].vrdec
+endif
+
 if not reflag then begin
    print, '*** Please note this program has dopplerTracked reference for data'
    print, '***   taken between 2011 April 4th and 2019 April 10th.'

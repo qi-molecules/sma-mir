@@ -6,6 +6,27 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+
+Feb 2020: MIR update:
+
+dbi_head2_read2.pro, dat_merge_sma.pro, uti_addhdr.pro (modified)
+-- updated for mir v4 data 
+
+dbi_doppler_fix.pro (modified)
+-- updated for mir v3 data
+
+flux_casa.pro, Ceres_fd_time.dat, Lutetia_fd_time.dat,
+   Pallas_fd_time.dat, Vesta_fd_time.dat (modified)
+-- updated for CASA 6.1 flux models
+
+readtsys2.pro, uti_tsys_fix (modified), 
+   readtsys_eng2.pro, uti_spectsys_fix.pro (added)
+-- added spectsys and enginnering tsys reading option and spectsys fix
+
+plo_spec.pro, plo_spec2.pro (modified)
+-- updated for warning on keyword preavg in MHz
+
+
 Oct 2020: MIR update:
 
 readdata.pro (modified)

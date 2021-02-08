@@ -1,5 +1,5 @@
 function flux_casa,source,radius,freq,bw,datatime,flux
-;   Use CASA 5.6.0 flux models 
+;   Use CASA 6.1.2 flux models 
 ; Common blocks
     common global
     common data_set
@@ -57,17 +57,28 @@ function flux_casa,source,radius,freq,bw,datatime,flux
 
        mjdm=reform(temp[5,*])
        tbm=temp[6:nfreqm-1,*]
- 
+
+       ; narrow down time index with +/- 5 days
+       time1=datatime[0]-5.
+       time2=datatime[0]+5.
+       itime1=round(interpol(findgen(nlines-1),mjdm,time1))
+       itime2=round(interpol(findgen(nlines-1),mjdm,time2))
+
+       if (itime1 le 0) or (itime2 ge nlines-2) then begin
+          print,'***WARNING! WARNING! ***********************'
+          print,'Data taken beyond the model time range for ',source
+          print,'***WARNING! WARNING! ***********************'
+          return,0
+       endif
+
+       new_mjdm=mjdm[itime1:itime2]
+       new_tbm=tbm[*,itime1:itime2]
+       new_nlines=itime2-itime1+1
+       
        for i=0, nfreq-1 do begin
           ifreq=interpol(findgen(nfreqm),freqm,freq[i])
-          imjd=interpol(findgen(nlines-1),mjdm, datatime[i])
-          if (imjd le 0) or (imjd ge nlines-2) then begin
-             print,'***WARNING! WARNING! ***********************' 
-             print,'Data taken beyond the model time range for ',source
-             print,'***WARNING! WARNING! ***********************'
-             return,0
-          endif
-          btemp[i]=bilinear(tbm, ifreq, imjd)
+          imjd=interpol(findgen(new_nlines),new_mjdm, datatime[i])
+          btemp[i]=bilinear(new_tbm, ifreq, imjd)
        endfor
 
     endif else begin
@@ -105,8 +116,8 @@ function flux_casa,source,radius,freq,bw,datatime,flux
 ;    print,btemp
 
     print,'***'
-    ; casa 5.6.0
-    print,' Using CASA flux calibration models (Butler-JPL-Horizons 2012)...'
+    ; casa 6.1.2
+    print,' Using CASA6.1 flux calibration models (Butler-JPL-Horizons 2012)...'
 
     ; Compute flux
     ; flux = 49.5 * (temp/200.0) * (radius/3.)^2 * (freq/110.201)^2

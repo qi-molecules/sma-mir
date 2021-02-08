@@ -158,7 +158,7 @@ for i=0L,nint-1L do begin
                   tmpk=tsys[kk].tssb[0:nM/2-1]
                   tmpk=[mean(tmpk),tmpk]
                   tmpk=[tmpk,tmpk]
-                  sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+                  sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)*2.
                endelse
             endif           
             loc=where(bl[pbl[tmp_idx]].itel1 eq ants[j] and bl[pbl[tmp_idx]].itel2 eq ants[k] and bl[pbl[tmp_idx]].irec eq distinct_irec[1], count)
@@ -178,7 +178,7 @@ for i=0L,nint-1L do begin
                   tmpk=tsys[kk].tssb[nM/2:nM-1]
                   tmpk=[mean(tmpk),tmpk]
                   tmpk=[tmpk,tmpk]
-                  sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+                  sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)*2.
                endelse
             endif
                        
@@ -202,7 +202,7 @@ for i=0L,nint-1L do begin
                      tmpk=tsys[kk].tssb[nM/2:nM-1]
                      tmpk=[mean(tmpk),tmpk]
                      tmpk=[tmpk,tmpk]
-                     sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+                     sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)*2.
                   endelse
                endif
             endif else begin
@@ -225,7 +225,7 @@ for i=0L,nint-1L do begin
                      tmpk=tsys[kk].tssb[0:nM/2-1]
                      tmpk=[mean(tmpk),tmpk]
                      tmpk=[tmpk,tmpk]
-                     sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)
+                     sp[psl[tmp_idx[loc]]].tssb=sqrt(tmpj*tmpk)*2.
                   endelse
 
                endif
@@ -244,6 +244,9 @@ for i=0L,nint-1L do begin
 endfor
 
 close,unit & free_lun,unit
+
+; load continuum data
+if (nM gt 2) or (keyword_set(spectsys)) then  readtsys_eng2
 
 print,'finished reading TSYS structure'
 
