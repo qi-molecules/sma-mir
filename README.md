@@ -7,7 +7,7 @@ https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
 
-Feb 2020: MIR update:
+Feb 2021: MIR update:
 
 dbi_head2_read2.pro, dat_merge_sma.pro, uti_addhdr.pro (modified)
 -- updated for mir v4 data 
