@@ -484,7 +484,7 @@ endif
 
 if newformat ne 0 then res=dat_filter(s_f,'"sphint1" eq "1" or "iband" ge "49"',/no_notify,/reset) else res=dat_filter(s_f,'"iband" ge "49"',/no_notify,/reset)
 if res gt 0 then begin
-   sp[psf].fsky = sp[psf].fsky - (signum(sp[psf].fres)*139.648e-6)
+   sp[psf].fsky = sp[psf].fsky - (sp[psf].fres/abs(sp[psf].fres))*139.648e-6
    sp[psf].vel=sp[psf].vel-abs(139.648e-3/sp[psf].fres) * sp[psf].vres
 endif
 
