@@ -489,10 +489,12 @@ if res gt 0 then begin
 endif
 
 
-res=dat_filter(s_f,'"wt" gt "0"',/reset,/no_notify)
-uti_avgband
+if not keyword_set(band_read) then begin
+   res=dat_filter(s_f,'"wt" gt "0"',/reset,/no_notify)
+   uti_avgband
+   print,'Continuum band c1 has been regenerated.'
+endif
 
-print,'Continuum band c1 has been regenerated.'
-;res=dat_filter(s_f,/reset,/no_notify)
+res=dat_filter(s_f,/reset,/no_notify)
 
 end

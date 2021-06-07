@@ -129,8 +129,8 @@ endif else begin
           source:strarr(nctags[12]),vrad:strarr(nctags[13]),$
           ra:strarr(nctags[14]),dec:strarr(nctags[15]),filever:strarr(nctags[16]),$
           stype:strarr(nctags[17]),svtype:strarr(nctags[18]),$
-          project:strarr(nctags[19]),$
-          icode_s:strarr(nctags[20]),icode_tag:strarr(nctags[21])}
+          project:strarr(nctags[19]),ddsmode:strarr(nctags[20]),$
+          icode_s:strarr(nctags[21]),icode_tag:strarr(nctags[22])}
    endif else begin
       c = { $
           ut:strarr(nctags[0]), $

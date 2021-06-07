@@ -7,6 +7,20 @@ https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
 
+Jun 2021: MIR update:
+
+CASA MS output support:
+-- CASA analysis utility package (added)
+-- sma.py (added)
+-- mir2ms.pro, transit_time.pro, ymdut_to_unixtime.pro (added)
+
+uti_redoppler.pro (added)
+-- to apply Doppler tracking corrections for the individual sources
+   offline. 
+
+ms_newformat.save, readdata.pro, uti_addhdr.pro (modified)
+-- update for mir v4 data
+
 Feb 2021: MIR update:
 
 readdata.pro
