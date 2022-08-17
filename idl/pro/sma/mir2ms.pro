@@ -93,10 +93,11 @@ endif else begin
 endelse
 
 ; separate rx 
-distinct_rec=c.rec[uti_distinct(bl.irec,nrec,/many)]
-for i=0, nrec-1 do begin
-   result=dat_filter(s_f,'"rec" eq "'+distinct_rec[i]+'" and "wt" gt "0"',/reset,/no_notify)
-   crx=distinct_rec[i]
+result=dat_filter(s_f,'"wt" gt "0"',/reset,/no_notify)
+distinct_rec=c.rec[uti_distinct(bl[pbf].irec,nrec,/many)]
+for ir=0, nrec-1 do begin
+   result=dat_filter(s_f,'"rec" eq "'+distinct_rec[ir]+'" and "wt" gt "0"',/reset,/no_notify)
+   crx=distinct_rec[ir]
    print, 'Working on receiver: ',crx,+'...'
 
    if crx eq '230' or crx eq '345' then useLOFreq =1 else useLOFreq = 2
@@ -337,7 +338,7 @@ for i=0, nrec-1 do begin
 
          data_ch=ch[pcfs[[tmp_idx[j]]]:pcfs[[tmp_idx[j]]]+nc-1]
                                 ; findgen(nc) returns an array of [0,1,2,3...]
-         data_out=interpolate(data_ch,findgen(nc)-fsh[0], cubic=-0.5)
+         data_out=interpolate(data_ch,findgen(nc)-fsh[0], cubic=-0.5,/double)
          ch[pcfs[[tmp_idx[j]]]:pcfs[[tmp_idx[j]]]+nc-1]=data_out
       endfor
 ;   print,'fsh is ',fsh

@@ -25,7 +25,7 @@ endif else begin
          if result gt 0 then begin
             for j=0,nsb-1 do begin
                for k=0,nband-1 do begin
-                  fitsname=source[ii]+'_'+dist_sb[j]+'_'+dist_band[k]+'_rx'+dist_rx[i]
+                  fitsname=source[ii]+'.'+dist_sb[j]+'_'+dist_band[k]+'_rx'+dist_rx[i]
                   print,''
                   print,'*****'
                   print,'Writing uvfits file:',fitsname

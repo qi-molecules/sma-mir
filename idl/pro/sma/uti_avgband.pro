@@ -1,4 +1,4 @@
-pro uti_avgband, all=all, band=band, old=old, swmch1=swmch1, swmch2=swmch2, zeroflag=zeroflag, excludefreq=excludefreq, c1_order=c1_order
+pro uti_avgband, all=all, band=band, old=old, swmch1=swmch1, swmch2=swmch2, chstart=chstart, chend=chend, zeroflag=zeroflag, excludefreq=excludefreq, c1_order=c1_order
 ;yes
 ;=Task:UTI_AVGBAND --- To create new continuum visibilities by averaging channel data.
 ;#Type: utility
@@ -267,29 +267,29 @@ if not keyword_set(old) then begin
             bw=bw-total(excludebw)         
             avgwt[k]=((npts[k]-skip1[k]-skip2[k])*swmfres-excludebw[k])/bw
          endif      
-      endif else begin
-         bw=n_elements(npts)*82.
-         avgwt[*] = 82./bw
+     endif else begin
+; for ASIC only, use chstart and chend
+         if (  keyword_set(chstart)) then begin
+           if (n_elements(chstart) gt 1) then begin
+              if (n_elements(chstart) ne n_elements(npts)) or (n_elements(chend) ne n_elements(npts)) then begin
+                 print, 'Wrong number of chstart/chend !'
+                 print, 'Please reset chstart/chend !'
+                 return
+              endif else begin
+                 skip1=chstart - 1
+                 skip2=npts - chend
+              endelse
+           endif else begin
+              skip1 = make_array(n_elements(npts),/long,value=chstart)-1
+              skip2 =  make_array(n_elements(npts),/long)
+              skip2 =  npts - chend 
+           endelse
+         endif
+         tmpfres=abs(sp[psl[icont[0]+1:icont[0]+nb]].fres)
+         tmpnch=sp[psl[icont[0]+1:icont[0]+nb]].nch
+         bw=total(tmpnch*tmpfres)-total(skip1*tmpfres)-total(skip2*tmpfres)
+         avgwt=(npts-skip1-skip2)*tmpfres/bw
       endelse
-
-; with chstart and chend 
-;        if (  keyword_set(chstart)) then begin
-;           if (n_elements(chstart) gt 1) then begin
-;              if (n_elements(chstart) ne n_elements(npts)) or (n_elements(chend) ne n_elements(npts)) then begin
-;                 print, 'Wrong number of chstart/chend !'
-;                 print, 'Please reset chstart/chend !'
-;                 return
-;              endif else begin
-;                 skip1=chstart - 1
-;                 skip2=npts - chend
-;              endelse
-;           endif else begin
-;              skip1 = make_array(n_elements(npts),/long,value=chstart)-1
-;              skip2 =  make_array(n_elements(npts),/long)
-;              skip2 =  npts - chend 
-;           endelse
-;        endif
-
       cmp=complex(0,0)
       for j=0,nb-1 do begin
          if keyword_set(excludefreq) then begin

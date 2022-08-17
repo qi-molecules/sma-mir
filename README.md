@@ -7,6 +7,14 @@ https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
 
+Aug 2022: MIR update:
+
+uti_hayshft_fix.pro, uti_redoppler.pro, uti_doppler_fix.pro, mir2ms.pro (modified)
+-- double precision
+
+uti_uvw_fix.pro, sma_dat_merge.pro, uti_avgband.pro, autofits.pro, phase_conjugate (modified)
+-- bug fixes
+
 Jun 2021: MIR update:
 
 CASA MS output support:

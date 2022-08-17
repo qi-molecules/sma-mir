@@ -49,11 +49,14 @@ if count ge 1 then begin
    refDec=dectab[i[0]]
 endif else reflag=0
 
-if c.filever[0] ge 3 then begin 
-   reflag=1
-   refRA=in[pif[0]].vrra
-   refDec=in[pif[0]].vrdec
+if tag_exist(c,'filever') then begin
+   if c.filever[0] ge 3 then begin 
+      reflag=1
+      refRA=in[pif[0]].vrra
+      refDec=in[pif[0]].vrdec
+   endif
 endif
+
 
 if not reflag then begin
    print, '*** Please note this program has dopplerTracked reference for data'
@@ -240,7 +243,7 @@ for is=0L, nsources -1L do begin
 ;        fsh=-1.*dv*sp[psls[[tmp_idx[j]]]].rfreq*1e6/!cvel/sp[psls[[tmp_idx[j]]]].fres
         data_ch=ch[pcls[[tmp_idx[j]]]:pcls[[tmp_idx[j]]]+nc-1]
 ;        data_out=interpolate(data_ch,findgen(nc)-fsh, cubic=-0.5)
-        data_out=interpolate(data_ch,findgen(nc)-vsh, cubic=-0.5)
+        data_out=interpolate(data_ch,findgen(nc)-vsh, cubic=-0.5,/double)
 ;        data_out=shift_spectrum(data_ch,nc,vsh)
         ch[pcls[[tmp_idx[j]]]:pcls[[tmp_idx[j]]]+nc-1]=data_out
      endfor

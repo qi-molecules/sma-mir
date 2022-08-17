@@ -63,6 +63,7 @@ IF savefilename eq '' THEN savefilename='mergedsaveset'
 result=dat_merge_sma(filenames, savefilename, newformat=newformat, sametrack=sametrack)
 
 print,'Merging done with dataset: ',savefilename
+print,'Note that the scan numbers will not be contiguous.'
 END
 
 
