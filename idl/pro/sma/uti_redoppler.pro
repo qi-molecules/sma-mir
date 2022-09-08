@@ -165,7 +165,7 @@ for i=0, nrec-1 do begin
             fsh = sign*my_fsky*(vRad/299792458.0D)/my_fres_hz
             data_ch=ch[pcfs[[tmp_idx[j]]]:pcfs[[tmp_idx[j]]]+nc-1]
                         
-            data_out=interpolate(data_ch,findgen(nc)-fsh[0], cubic=-0.5,/double)
+            data_out=interpolate(data_ch,findgen(nc)-fsh[0], cubic=-0.5)
             ch[pcfs[[tmp_idx[j]]]:pcfs[[tmp_idx[j]]]+nc-1]=data_out
         endfor
 ;   print,'fsh is ',fsh

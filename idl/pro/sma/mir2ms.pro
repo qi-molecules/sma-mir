@@ -338,7 +338,7 @@ for ir=0, nrec-1 do begin
 
          data_ch=ch[pcfs[[tmp_idx[j]]]:pcfs[[tmp_idx[j]]]+nc-1]
                                 ; findgen(nc) returns an array of [0,1,2,3...]
-         data_out=interpolate(data_ch,findgen(nc)-fsh[0], cubic=-0.5,/double)
+         data_out=interpolate(data_ch,findgen(nc)-fsh[0], cubic=-0.5)
          ch[pcfs[[tmp_idx[j]]]:pcfs[[tmp_idx[j]]]+nc-1]=data_out
       endfor
 ;   print,'fsh is ',fsh

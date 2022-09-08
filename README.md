@@ -7,6 +7,10 @@ https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
 
+Sep 2022: MIR update:
+uti_hayshft_fix.pro, uti_redoppler.pro, uti_doppler_fix.pro, mir2ms.pro (modified)
+-- double keyword not allowed for INTERPOLATE routine for IDL before version 8.2.3, removed.
+
 Aug 2022: MIR update:
 
 uti_hayshft_fix.pro, uti_redoppler.pro, uti_doppler_fix.pro, mir2ms.pro (modified)
