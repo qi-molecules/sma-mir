@@ -6,8 +6,14 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+Nov 2022: MIR update:
+
+mir2ms.pro and sma.py modified to allow for CASA6+ output and the polarization
+state of the data set to be XX instead of RR.
+
 
 Sep 2022: MIR update:
+
 uti_hayshft_fix.pro, uti_redoppler.pro, uti_doppler_fix.pro, mir2ms.pro (modified)
 -- double keyword not allowed for INTERPOLATE routine for IDL before version 8.2.3, removed.
 

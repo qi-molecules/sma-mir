@@ -1,11 +1,45 @@
 import glob
 import shutil
 import os
+import numpy as np
 
-# Casa tasks used: this is the CASA 5 version of importing (it is different in CASA 6)
-from taskinit import *
-from concat_cli import concat_cli as concat
-from importuvfits_cli import importuvfits_cli as importuvfits
+casaVersion = None
+try: # Check if this is CASA6  CASA 6
+    import casalith
+    casaVersion = casalith.version_string()
+except:
+    # either we are importing into python, modular casa, or CASA < 6
+    try:
+        import casashell  # modular casa
+        casaVersion = casashell.version_string()
+    except: # either we are importing into python, or CASA < 6
+        if (os.getenv('CASAPATH') is not None):
+            import casadef
+            if casadef.casa_version >= '5.0.0':
+                import casa as mycasa
+                if 'cutool' in dir(mycasa):
+                    cu = mycasa.cutool()
+                    casaVersion = '.'.join([str(i) for i in cu.version()[:-1]]) + '-' + str(cu.version()[-1])
+                else:
+                    casaVersion = mycasa.casa['build']['version'].split()[0]
+            else:
+                casaVersion = casadef.casa_version
+        else: # this should never happen
+            casaVersion = None
+if casaVersion is not None:
+    try:  # CASA 5.x
+        from taskinit import *
+        from concat_cli import concat_cli as concat
+        from listobs_cli import listobs_cli as listobs
+        from importuvfits_cli import importuvfits_cli as importuvfits
+    except:  # casa 6
+        if casaVersion >= '5.9.9': # 5.9.9 was the first attempt at 6.0
+            from casatasks import concat
+            from casatasks import listobs
+            from casatasks import importuvfits
+            print("Importing tbtool")
+            from casatools import table as tbtool
+            print("Done")
 
 def concatSMAdataset(targetlist='allsources', 
                      finalvis='allsources', offset=100, 
@@ -102,7 +136,7 @@ def offsetScanNumbers(vis, offset=100, outputvis=''):
     else:
         print("Copying %s to %s" % (vis,outputvis))
         shutil.copytree(vis, outputvis)
-    mytb = createCasaTool(tbtool)
+    mytb = tbtool()
     mytb.open(outputvis, nomodify=False)
     scan = mytb.getcol('SCAN_NUMBER')
     scan += offset    
@@ -136,4 +170,25 @@ def listobslist(vislist, suffix='.listobs', outpath='', overwrite=False, verbose
                 os.remove(listfile)
             print("Running listobs('%s', listfile='%s', field='%s')" % (vis, listfile, field))
             listobs(vis, listfile=listfile, field=field)
+
+
+def modifyCorrType(vis, oldCorrType=[5], newCorrType=[9]):
+     """
+     Set the CORR_TYPE column of the POLARIZATION table
+     oldCorrType: determines which entries to change
+     newCorrType: new value to write
+     ptypes=['Undefined','I','Q','U','V','RR','RL','LR','LL','XX','XY','YX','YY']
+     """
+     if (not os.path.exists(vis)):
+         print("Could not find measurement set.")
+         return
+     mytb = tbtool()
+     mytb.open(vis+'/POLARIZATION', nomodify=False)
+     corrType = mytb.getcol('CORR_TYPE')
+     i = np.where(corrType == oldCorrType)
+     corrType[i] = newCorrType
+     print("Writing ", corrType)
+     mytb.putcol('CORR_TYPE', corrType)
+     mytb.close()
+     listobslist(vis, overwrite=True)
 

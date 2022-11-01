@@ -360,14 +360,17 @@ for ir=0, nrec-1 do begin
    outms=outname+'.rx'+crx+'.ms'
    openw, outunit,'uvfits2ms.py',/get_lun
    printf,outunit,'import sys'
-   line='sys.path.append("'+e.idl_sav+'analysis_scripts/")'
+   printf,outunit,'import os'
+   line='sys.path.append("'+e.idl_sav+'")'
    printf,outunit,line
-   line='from analysisUtils import createCasaTool'
+   line='from sma import concatSMAdataset'
    printf,outunit,line
-   ;line="execfile('sma.py')"
-   line="execfile('"+e.idl_sav+"sma.py')"
-   printf,outunit,line
+   ;printf,outunit,line
    line="concatSMAdataset(targetlist='"+sourcelist+"',finalvis='"+outms+"',offset=100)"
+   printf,outunit,line
+   line='from sma import modifyCorrType'
+   printf,outunit,line
+   line="modifyCorrType('"+outms+"')"
    printf,outunit,line
    printf,outunit,"os.system('rm -rf *.part')"
    printf,outunit,"os.system('rm -rf *.UVFITS')"
