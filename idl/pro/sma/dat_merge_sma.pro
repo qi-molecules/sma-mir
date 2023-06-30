@@ -344,19 +344,35 @@ c = { $
 endif else begin
 
    if tag_exist(c,'filever') then begin
-      c = { $
-        ut:strarr(nctags[0]), $
-        ref_time:strarr(nctags[1]), $
-        sb:strarr(ncodes[0,2]),pol:strarr(ncodes[0,3]),$
-        rec:strarr(ncodes[0,4]),tel1:strarr(nctags[5]),$
-        tel2:strarr(nctags[6]),blcd:strarr(nctags[7]),$
-        gq:strarr(ncodes[0,8]),pq:strarr(ncodes[0,9]),$
-        band:strarr(ncodes[0,10]),pstate:strarr(ncodes[0,11]),$
-        source:strarr(nctags[12]),vrad:strarr(ncodes[0,13]),$
-        ra:strarr(nctags[14]),dec:strarr(nctags[15]),filever:strarr(nctags[16]),$
-        stype:strarr(nctags[17]),svtype:strarr(nctags[18]),$
-        project:strarr(nctags[19]),ddsmode:strarr(nctags[20]),$
-        icode_s:strarr(ncodes[0,21]),icode_tag:strarr(ncodes[0,22])}
+       if fix(c.filever) ge 5 then begin
+           c = { $
+                 ut:strarr(nctags[0]), $
+                 ref_time:strarr(nctags[1]), $
+                 sb:strarr(ncodes[0,2]),pol:strarr(ncodes[0,3]),$
+                 rec:strarr(ncodes[0,4]),tel1:strarr(nctags[5]),$
+                 tel2:strarr(nctags[6]),blcd:strarr(nctags[7]),$
+                 gq:strarr(ncodes[0,8]),pq:strarr(ncodes[0,9]),$
+                 band:strarr(ncodes[0,10]),pstate:strarr(ncodes[0,11]),$
+                 source:strarr(nctags[12]),vrad:strarr(ncodes[0,13]),$
+                 ra:strarr(nctags[14]),dec:strarr(nctags[15]),filever:strarr(nctags[16]),$
+                 stype:strarr(nctags[17]),svtype:strarr(nctags[18]),$
+                 project:strarr(nctags[19]),ddsmode:strarr(nctags[20]),dut1:strarr(nctags[21]),$
+                 icode_s:strarr(ncodes[0,22]),icode_tag:strarr(ncodes[0,23])}
+       endif else begin
+           c = { $
+                 ut:strarr(nctags[0]), $
+                 ref_time:strarr(nctags[1]), $
+                 sb:strarr(ncodes[0,2]),pol:strarr(ncodes[0,3]),$
+                 rec:strarr(ncodes[0,4]),tel1:strarr(nctags[5]),$
+                 tel2:strarr(nctags[6]),blcd:strarr(nctags[7]),$
+                 gq:strarr(ncodes[0,8]),pq:strarr(ncodes[0,9]),$
+                 band:strarr(ncodes[0,10]),pstate:strarr(ncodes[0,11]),$
+                 source:strarr(nctags[12]),vrad:strarr(ncodes[0,13]),$
+                 ra:strarr(nctags[14]),dec:strarr(nctags[15]),filever:strarr(nctags[16]),$
+                 stype:strarr(nctags[17]),svtype:strarr(nctags[18]),$
+                 project:strarr(nctags[19]),ddsmode:strarr(nctags[20]),$
+                 icode_s:strarr(ncodes[0,21]),icode_tag:strarr(ncodes[0,22])}
+       endelse
    endif else begin
       c = { $
         ut:strarr(nctags[0]), $

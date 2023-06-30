@@ -6,6 +6,29 @@ see
 https://www.cfa.harvard.edu/~cqi/mircook.html
 
 ###################################################
+
+Jul 2023: MIR update:
+
+setup.sh (modified) 
+-- update for bash setup file
+
+sma.py (modified)
+-- load uvfits with correct weight scaling for CASA output.
+
+readdata.pro, dbi_head2_read2.pro, dat_merge_sma.pro, ms_newformat.save (modified)
+-- update for data v5 
+
+flux_casa.pro (modified)
+-- Bug fixed. The bug was initiated on February 2nd, 2021 which affected the 
+   flux models of Ceres, Lutetia, Mars, Pallas, and Vesta. Specifically, the 
+   old routine only read in the model flux up to a frequency of 330 GHz. 
+   As a result, flux values from these sources at frequency above 330 GHz 
+   would approximate the value at 330 GHz at the time stamp of the measurement.
+
+mir2ms.pro (modified)
+-- New keywords SIDEBAND, NOMS added. 
+ 
+
 Nov 2022: MIR update:
 
 mir2ms.pro and sma.py modified to allow for CASA6+ output and the polarization

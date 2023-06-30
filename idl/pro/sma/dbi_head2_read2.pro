@@ -34,8 +34,8 @@ sph_temp={sphid:0L,blhid:0L,inhid:0L,igq:0,ipq:0,iband:0,$
          integ:0e,wt:0e,flags:0L,vradcat:0e,$
          nch:0,nrec:0,dataOFF:0L,$
          rfreq:0d,corrblock:0,corrchunk:0,$
-         sphint1:0L,iddsmode:0,sphshort:0,sphint3:0L,$
-         sphint4:0L,sphint5:0L,sphint6:0L,tssb:0d,$
+         sphint1:0L,iddsmode:0,gunnmult:0,amp:0e,$
+         phase:0L,sphint5:0L,sphint6:0L,tssb:0d,$
          fdds:0d,sphdbl3:0d,sphdbl4:0d,sphdbl5:0d,sphdbl6:0d}
 code_temp={v_name:'123456789012',icode:0, $
            code:'12345678901234567890123456',ncode:0}
@@ -154,6 +154,7 @@ oq = strarr(1)
 pol = strarr(1)
 ;pos = strarr(1)
 vrad=strarr(1)
+dut1=strarr(1)
 pq = strarr(1)
 pstate = strarr(1)
 ra = strarr(1)
@@ -221,6 +222,7 @@ for i=0L,(nrows-1L) do  begin
        'pol'  : pol(code_temp.icode)=strtrim(code_temp.code,2L)
        'pos'  :
        'vrad'  : vrad(code_temp.icode)=strtrim(code_temp.code,2L) 
+       'dut1' : dut1(code_temp.icode)=strtrim(code_temp.code,2L)
        'pq'   : pq(code_temp.icode)=strtrim(code_temp.code,2L)
        'pstate': pstate(code_temp.icode)=strtrim(code_temp.code,2L)
        'ra'   : ra(code_temp.icode)=strtrim(code_temp.code,2L)  
@@ -277,7 +279,7 @@ c = { $
      gq:gq,pq:pq,band:band,pstate:pstate,$
      source:source,vrad:vrad,ra:ra,dec:dec,$
      filever:filever,stype:stype,svtype:svtype,project:project,$
-     ddsmode:ddsmode,icode_s:icode_s,icode_tag:icode_tag}
+     ddsmode:ddsmode,dut1:dut1,icode_s:icode_s,icode_tag:icode_tag}
 
 if keyword_set(newwindows) then begin
    

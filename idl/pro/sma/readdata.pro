@@ -76,6 +76,13 @@ if keyword_set(directory) then begin
        newformat=0L
        readu,unit,newformat
        close,unit & free_lun,unit
+       if newformat eq 0 then begin
+           code_check=bytarr(12)
+           openr, unit, e.idl_bcp+'codes_read',/get_lun,error=err
+           readu,unit,code_check
+           newformat = strcmp(string(byte(code_check)), 'filever')
+           close,unit & free_lun,unit
+       endif
     endif
     if newformat ne 0 then begin
        print,'****************************New data format ...'
@@ -117,6 +124,13 @@ if keyword_set(directory) then begin
        newformat=0L
        readu,unit,newformat
        close,unit & free_lun,unit
+       if newformat eq 0 then begin
+           code_check=bytarr(12)
+           openr, unit, e.idl_bcp+'codes_read',/get_lun,error=err
+           readu,unit,code_check
+           newformat = strcmp(string(byte(code_check)), 'filever')
+           close,unit & free_lun,unit
+       endif
     endif
     if newformat ne 0 then begin
        print,'****************************New data format ...'

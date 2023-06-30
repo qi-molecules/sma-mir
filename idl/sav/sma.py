@@ -2,6 +2,7 @@ import glob
 import shutil
 import os
 import numpy as np
+import pyfits as pf
 
 casaVersion = None
 try: # Check if this is CASA6  CASA 6
@@ -65,6 +66,49 @@ def concatSMAdataset(targetlist='allsources',
                 continue
             dataset = f.lower().replace('.uvfits','.ms.part')
             importuvfits(f, dataset)
+            ############
+            #Read wtscale from UVFITS header input
+            ############
+            head=pf.getheader(f)
+            if float(pf.__version__[:3])<3.2:
+                # THIS WORKS WITH CASA 4.7.2 and earlier
+                nhistlines=len(head.get_history())
+                hist=[]
+                for i in np.arange(nhistlines):
+                    hist.append(str(head.get_history()[i]))
+                    histmerged='\n'.join(hist)
+            else:
+                    # THIS WORKS WITH CASA 5.0.0 and later
+                histmerged=str(head['HISTORY'])
+            begstrind=int((histmerged.find('AIPS WTSCAL ='))+len('AIPS WTSCAL =')+1)
+            endstrind=int(len(histmerged))
+            endlineind=histmerged.find('\n', begstrind, endstrind)
+            wtscale=float(histmerged[begstrind:endlineind])
+
+            tb = tbtool()        
+            ############
+            ## Correcting weights using basically 'scaleweights' function in 
+            ## CASA's analysisUtils package
+            ############
+            # Find number of data description IDs
+            #try:
+            tb.open(dataset,nomodify=False)
+            #except:
+            #print "ERROR: failed to open ms tool on file "+MSname
+            #        tb.close()
+            #        return(3)
+            recw = tb.getcol('WEIGHT')
+            recw_sp = tb.getcol('WEIGHT_SPECTRUM')
+            print('###############')
+            print('Multiplying weights in the MS by a factor '+str(wtscale))
+                
+            recw_sp*=wtscale
+            recw=recw_sp[:,0,:]
+            tb.putcol('WEIGHT', recw)
+            tb.putcol('WEIGHT_SPECTRUM', recw_sp)
+            tb.putcol('SIGMA', np.sqrt(1.0/recw))
+            tb.close()
+
             setMeasFreqRef(dataset)
     if type(targetlist) == str:
         targetlist = targetlist.split(',')

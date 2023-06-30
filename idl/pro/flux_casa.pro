@@ -56,7 +56,7 @@ function flux_casa,source,radius,freq,bw,datatime,flux
        close, unit & free_lun, unit
 
        mjdm=reform(temp[5,*])
-       tbm=temp[6:nfreqm-1,*]
+       tbm = temp[6:6+nfreqm-1,*]
 
        ; narrow down time index with +/- 5 days
        time1=datatime[0]-5.

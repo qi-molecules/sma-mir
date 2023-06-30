@@ -1,12 +1,18 @@
-RDXDIR=/sma/mir 
-export RDXDIR
-IDL_STARTUP=$RDXDIR/idl/idl_startup
-export IDL_STARTUP
-IDL_DIR=/opt/rsi/idl
-export IDL_DIR
-IDL_PATH=\+$RDXDIR/idl/pro:$IDL_DIR/lib
-export IDL_PATH
-IDL_DEVICE=X
-export IDL_DEVICE
-CAMPUS_LOGIN=sma
-export CAMPUS_LOGIN
+#RDXDIR is the directory with all the MIR programs
+#replace RDXDIR with your own mir directory
+export RDXDIR=/sma/mir  #[normally set by sybase.env]
+export IDL_STARTUP=$RDXDIR/idl/idl_startup
+
+#These lines are normal idl setup lines except that $RDXDIR/idl has
+#been added to the front of the path
+#setenv LM_LICENSE_FILE /opt/license_files/license.dat
+#setenv IDL_DIR  /usr/local/rsi/idl
+export IDL_DIR=/opt/rsi/idl
+export ASTRO_DATA=$RDXDIR/user_contrib/astron
+
+#Add your own idl directory in IDL_PATH if necessary
+export IDL_PATH=\+$RDXDIR/idl/pro:$IDL_DIR/lib:$RDXDIR/user_contrib/astron/pro
+export IDL_DEVICE=X
+alias idl='$IDL_DIR/bin/idl'                                 # generic IDL version
+export CAMPUS_LOGIN=sma 
+export LD_PRELOAD_PATH=/sma/mir/idl/sav

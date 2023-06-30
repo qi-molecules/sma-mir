@@ -1,4 +1,4 @@
-pro mir2ms, dir=dir, rx=rx, mymir=mymir, engdbfile=engdbfile, casa_call=casa_call, outname=outname, flipsign=flipsign
+pro mir2ms, dir=dir, rx=rx, sideband=sideband, mymir=mymir, engdbfile=engdbfile, casa_call=casa_call, outname=outname, flipsign=flipsign, noms=noms
 ;+
 ; NAME:
 ;      mir2ms
@@ -65,7 +65,7 @@ if keyword_set(dir) then begin
    checkslash = strmid(dir,nchar-1,1)
    if ( strmatch(checkslash,'/') le 0 ) then dir = dir + '/'
    e.idl_bcp=dir
-   readdata,dir=dir,rx=rx
+   readdata,dir=dir,rx=rx,sideband=sideband
 endif
 
 
@@ -357,7 +357,11 @@ for ir=0, nrec-1 do begin
 ;sourcelist=distinct_source+[REPLICATE(',', N_ELEMENTS(distinct_source)-1), ''] 
    sourcelist=strjoin(strlowcase(distinct_source),',')
 
-   outms=outname+'.rx'+crx+'.ms'
+   if not keyword_set(sideband) then outms=outname+'.rx'+crx+'.ms' else begin
+       csb=c.sb[bl[pbf[0]].isb]
+       outms=outname+'.rx'+crx+'.'+csb+'sb.ms'
+   endelse
+   if keyword_set(noms) then outms=outname+'.ms'
    openw, outunit,'uvfits2ms.py',/get_lun
    printf,outunit,'import sys'
    printf,outunit,'import os'
@@ -377,10 +381,16 @@ for ir=0, nrec-1 do begin
    free_lun,outunit
    
    cmd=casa_call+' --nologger --log2term -c uvfits2ms.py'
-   spawn,cmd
+   if not keyword_set(noms) then begin
+       spawn,cmd
+       print,'Receiver ',crx,' data output to ',outms,'!'
+   endif else begin
+       print,'***************************************************************'
+       print,'* Only UVFITS output, no measurement set...                   *' 
+       print,'* You can use uvfits2ms.py to output measurement set manually!*'
+       print,'***************************************************************'
+   endelse   
 
-   print,'Receiver ',crx,' data output to ',outms,'!'
-   
 endfor 
 
 journal
